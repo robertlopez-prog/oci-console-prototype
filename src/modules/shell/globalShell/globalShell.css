@@ -1,0 +1,11 @@
+:host {
+    display: block;
+    position: sticky;
+    top: 0;
+    z-index: 6000;
+    flex-shrink: 0;
+}
+
+.oms-global-shell {
+    background-color: var(--slds-g-color-surface-container-1, #fff);
+}

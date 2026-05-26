@@ -1,0 +1,247 @@
+<template>
+    <!-- Modal backdrop -->
+    <div class="del-modal__backdrop" onclick={handleBackdropClick}></div>
+
+    <!-- Modal container -->
+    <section class="del-modal slds-modal slds-fade-in-open" role="dialog" aria-modal="true" aria-labelledby="del-modal-heading">
+
+        <div class="slds-modal__container del-modal__container">
+
+            <!-- Modal Header -->
+            <header class="slds-modal__header del-modal__header">
+                <lightning-button-icon
+                    icon-name="utility:close"
+                    alternative-text="Close"
+                    title="Close"
+                    variant="bare-inverse"
+                    class="slds-modal__close"
+                    onclick={handleClose}>
+                </lightning-button-icon>
+                <h1 id="del-modal-heading" class="slds-modal__title slds-hyphenate">Delete Inventory</h1>
+                <p class="del-modal__step-label">{stepLabel}</p>
+            </header>
+
+            <!-- Modal Body -->
+            <div class="slds-modal__content del-modal__body">
+
+                <!-- ══ STEP 1: Prepare Your File ══ -->
+                <template lwc:if={isStep1}>
+                    <div class="slds-grid slds-gutters del-step1">
+
+                        <!-- Left: Instructions panel -->
+                        <div class="slds-col slds-size_5-of-12 del-step1__left">
+                            <div class="del-step1__icon-wrap" aria-hidden="true">
+                                <lightning-icon icon-name="doctype:csv" size="large" alternative-text=""></lightning-icon>
+                            </div>
+                            <h2 class="del-step1__panel-title">Prepare your file</h2>
+                            <p class="del-step1__panel-body">
+                                Delete inventory records using a CSV or JSON file. Each row must include a Location, SKU, and a Request ID you supply for tracking and reconciliation.
+                            </p>
+                            <div class="del-step1__warning">
+                                <lightning-icon icon-name="utility:warning" size="x-small" alternative-text="Warning" class="del-step1__warning-icon"></lightning-icon>
+                                <span>Deletions are <strong>permanent</strong> and cannot be undone. Use the sample file to verify your format before uploading.</span>
+                            </div>
+                        </div>
+
+                        <!-- Right: Upload panel -->
+                        <div class="slds-col slds-size_7-of-12 del-step1__right">
+
+                            <!-- Sample file tile -->
+                            <div class="del-step1__tile">
+                                <div class="del-step1__tile-body">
+                                    <p class="del-step1__tile-hint">
+                                        <strong>(Recommended)</strong> Use the sample CSV file to prepare your delete file.
+                                    </p>
+                                </div>
+                                <lightning-button
+                                    label="Download Sample File"
+                                    icon-name="utility:download"
+                                    variant="neutral"
+                                    onclick={handleDownloadSample}>
+                                </lightning-button>
+                            </div>
+
+                            <!-- Upload tile -->
+                            <div class="del-step1__tile del-step1__tile--upload">
+                                <p class="del-step1__tile-hint">To delete inventory, upload your CSV or JSON file and click Next.</p>
+                                <div class={dropzoneClass}
+                                    ondragover={handleDragOver}
+                                    ondragleave={handleDragLeave}
+                                    ondrop={handleDrop}>
+                                    <template lwc:if={hasFile}>
+                                        <div class="del-dropzone__file">
+                                            <lightning-icon icon-name="doctype:csv" size="small" alternative-text="File"></lightning-icon>
+                                            <span class="del-dropzone__file-name">{fileName}</span>
+                                            <span class="del-dropzone__file-size">({fileSize})</span>
+                                            <lightning-button-icon
+                                                icon-name="utility:close"
+                                                alternative-text="Remove file"
+                                                variant="bare"
+                                                size="x-small"
+                                                onclick={handleRemoveFile}>
+                                            </lightning-button-icon>
+                                        </div>
+                                    </template>
+                                    <template lwc:else>
+                                        <div class="del-dropzone__cta">
+                                            <lightning-button label="Upload Files" icon-name="utility:upload" variant="neutral" onclick={handleUploadClick}></lightning-button>
+                                            <span class="del-dropzone__or">Or drop files</span>
+                                        </div>
+                                    </template>
+                                    <input type="file" class="del-dropzone__input" accept=".csv,.json,.ndjson,.gz" onchange={handleFileChange} />
+                                </div>
+                                <p class="del-step1__format-note">CSV or JSON · Optional GZIP compression · Max 100 MB</p>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- ══ STEP 2: Review & Confirm ══ -->
+                <template lwc:if={isStep2}>
+                    <div class="del-step2">
+
+                        <!-- File summary card -->
+                        <lightning-card title="File Summary" icon-name="doctype:csv">
+                            <div class="slds-p-around_medium del-step2__summary">
+                                <dl class="slds-dl_horizontal">
+                                    <dt class="slds-dl_horizontal__label slds-text-color_weak">File name</dt>
+                                    <dd class="slds-dl_horizontal__detail">{fileName}</dd>
+                                    <dt class="slds-dl_horizontal__label slds-text-color_weak">File size</dt>
+                                    <dd class="slds-dl_horizontal__detail">{fileSize}</dd>
+                                    <dt class="slds-dl_horizontal__label slds-text-color_weak">Format</dt>
+                                    <dd class="slds-dl_horizontal__detail">{fileFormat}</dd>
+                                    <dt class="slds-dl_horizontal__label slds-text-color_weak">Estimated rows</dt>
+                                    <dd class="slds-dl_horizontal__detail">{estimatedRows}</dd>
+                                </dl>
+                            </div>
+                        </lightning-card>
+
+                        <!-- Pre-sorted option (advanced) -->
+                        <div class="del-step2__presorted">
+                            <lightning-input
+                                type="toggle"
+                                label="My file is pre-sorted by SKU (faster processing)"
+                                name="presorted"
+                                checked={isPreSorted}
+                                onchange={handlePreSortedChange}
+                                message-toggle-active="Enabled"
+                                message-toggle-inactive="Disabled">
+                            </lightning-input>
+                            <p class="del-step2__presorted-hint">
+                                When enabled, the service skips file partitioning and streams directly for faster processing. The job will fail if a sort violation is detected.
+                            </p>
+                        </div>
+
+                        <!-- Confirmation checkbox — required before Submit -->
+                        <div class="del-step2__confirm-box">
+                            <div class="del-step2__confirm-header">
+                                <lightning-icon icon-name="utility:warning" size="small" alternative-text="Warning" class="del-step2__confirm-icon"></lightning-icon>
+                                <h3 class="del-step2__confirm-title">Confirm Permanent Deletion</h3>
+                            </div>
+                            <p class="del-step2__confirm-body">
+                                Deleting inventory records permanently removes them from all location groups and availability calculations.
+                                Already-processed rows <strong>cannot be recovered</strong> — even if you cancel the job mid-run.
+                                The result file (available for 24 hours after completion) is your only record of what was deleted.
+                            </p>
+                            <div class="del-step2__checkbox-wrap">
+                                <lightning-input
+                                    type="checkbox"
+                                    label="I understand that deleting inventory records is permanent and cannot be reversed. The records in this file will be removed from all location groups and availability calculations."
+                                    name="confirm"
+                                    checked={isConfirmed}
+                                    onchange={handleConfirmChange}>
+                                </lightning-input>
+                            </div>
+                        </div>
+
+                    </div>
+                </template>
+
+                <!-- ══ STEP 3: Submitted ══ -->
+                <template lwc:if={isStep3}>
+                    <div class="del-step3">
+                        <div class="del-step3__success-icon" aria-hidden="true">
+                            <lightning-icon icon-name="action:approval" size="large" alternative-text=""></lightning-icon>
+                        </div>
+                        <h2 class="del-step3__title">Deletion Job Submitted</h2>
+                        <p class="del-step3__body">
+                            Your file is being processed in the background. Large files may take several minutes to complete.
+                        </p>
+
+                        <div class="del-step3__job-card">
+                            <dl class="slds-dl_horizontal">
+                                <dt class="slds-dl_horizontal__label slds-text-color_weak">Job ID</dt>
+                                <dd class="slds-dl_horizontal__detail del-step3__job-id">{batchId}</dd>
+                                <dt class="slds-dl_horizontal__label slds-text-color_weak">File</dt>
+                                <dd class="slds-dl_horizontal__detail">{fileName}</dd>
+                                <dt class="slds-dl_horizontal__label slds-text-color_weak">Status</dt>
+                                <dd class="slds-dl_horizontal__detail">
+                                    <lightning-badge label="Submitted" class="del-badge--submitted"></lightning-badge>
+                                </dd>
+                            </dl>
+                        </div>
+
+                        <div class="del-step3__actions">
+                            <lightning-button
+                                label="View Deletion History"
+                                variant="brand"
+                                icon-name="utility:list"
+                                onclick={handleViewHistory}>
+                            </lightning-button>
+                            <lightning-button
+                                label="Close"
+                                variant="neutral"
+                                onclick={handleClose}>
+                            </lightning-button>
+                        </div>
+
+                        <p class="del-step3__note">
+                            Monitor progress and download your results file from <strong>Deletion History</strong> once the job completes. Results are retained for 24 hours.
+                        </p>
+                    </div>
+                </template>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <footer class="slds-modal__footer del-modal__footer">
+
+                <!-- Progress dots -->
+                <div class="del-modal__progress">
+                    <span class={progressDot1} aria-hidden="true"></span>
+                    <span class={progressDot2} aria-hidden="true"></span>
+                    <span class={progressDot3} aria-hidden="true"></span>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="del-modal__footer-actions">
+                    <template lwc:if={showCancelBtn}>
+                        <lightning-button label="Cancel" variant="neutral" onclick={handleClose}></lightning-button>
+                    </template>
+                    <template lwc:if={showBackBtn}>
+                        <lightning-button label="Back" variant="neutral" onclick={handleBack}></lightning-button>
+                    </template>
+                    <template lwc:if={isStep1}>
+                        <lightning-button
+                            label="Next"
+                            variant="brand"
+                            disabled={isNextDisabled}
+                            onclick={handleNext}>
+                        </lightning-button>
+                    </template>
+                    <template lwc:if={isStep2}>
+                        <lightning-button
+                            label="Submit Deletion Job"
+                            variant="brand"
+                            disabled={isSubmitDisabled}
+                            icon-name="utility:delete"
+                            onclick={handleSubmit}>
+                        </lightning-button>
+                    </template>
+                </div>
+
+            </footer>
+
+        </div>
+    </section>
+</template>

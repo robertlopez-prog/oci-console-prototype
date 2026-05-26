@@ -1,0 +1,53 @@
+/* App layout */
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+/* Hide horizontal scrollbar on datatables */
+.slds-scrollable_x {
+    overflow-x: hidden !important;
+}
+
+/* Omnichannel Inventory tabs spacing */
+page-omnichannel-inventory .slds-tabs_default,
+page-omnichannel-inventory .slds-tabs_scoped {
+    padding-top: var(--slds-g-spacing-3, 0.75rem);
+    padding-left: var(--slds-g-spacing-4, 1rem);
+    padding-right: var(--slds-g-spacing-4, 1rem);
+}
+
+#app {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+shell-app {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Global Header: Action Icons */
+.lightning-button-menu_custom .slds-button__icon {
+    fill: light-dark(var(--slds-g-color-palette-neutral-60), var(--slds-g-color-palette-neutral-40));
+}
+
+.lightning-button-menu_custom:hover .slds-button__icon {
+    fill: light-dark(var(--slds-g-color-palette-neutral-50), var(--slds-g-color-palette-neutral-30));
+}
+
+.lightning-button-menu_custom lightning-primitive-icon:nth-of-type(2) {
+    display: none;
+}
+
+.lightning-button-menu_custom .slds-button:first-child {
+    border-inline-end-width: var(--slds-g-border-width-1, 1px);
+}
+
+.lightning-button-menu_custom .slds-button_icon-container-more {
+    line-height: inherit;
+}

@@ -1,0 +1,17 @@
+<template>
+    <span class={computedClass} title={alternativeText}>
+        <template lwc:if={hasSrc}>
+            <img src={src} alt={alternativeText} class="slds-avatar__image" />
+        </template>
+        <template lwc:elseif={hasInitials}>
+            <abbr class="slds-avatar__initials" title={alternativeText}>{initials}</abbr>
+        </template>
+        <template lwc:else>
+            <lightning-icon
+                icon-name={fallbackIconName}
+                alternative-text={alternativeText}
+                size="small">
+            </lightning-icon>
+        </template>
+    </span>
+</template>

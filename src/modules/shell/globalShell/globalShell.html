@@ -1,0 +1,10 @@
+<template>
+    <div class="oms-global-shell">
+        <shell-global-header onpanelselect={handlePanelSelect}></shell-global-header>
+        <shell-global-navigation
+            current-page={currentPage}
+            workspace-paths={workspacePaths}
+            onnavigate={handleNavigate}>
+        </shell-global-navigation>
+    </div>
+</template>

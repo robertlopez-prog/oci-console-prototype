@@ -1,0 +1,44 @@
+{
+  "name": "oci-bulk-delete-prototype",
+  "version": "1.0.0",
+  "description": "OMS UX Starter Kit using Salesforce Design System 2",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run scripts/prebuild-icons.mjs && vite",
+    "build": "bun run scripts/prebuild-icons.mjs && vite build",
+    "build:gh-pages": "bun run scripts/prebuild-icons.mjs && VITE_ROUTER_MODE=hash vite build --base ./",
+    "deploy": "npm run build:gh-pages && gh-pages -d dist",
+    "preview": "vite preview",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "skills:sync": "echo 'skills sync placeholder'",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/salesforce-ux-emu/OMSUXStarterKit.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@salesforce-ux/design-system-2": "^2.0.0",
+    "@salesforce-ux/icons": "10.15.2"
+  },
+  "packageManager": "yarn@4.14.1",
+  "devDependencies": {
+    "@lwc/rollup-plugin": "^9.1.1",
+    "@lwc/synthetic-shadow": "^9.1.1",
+    "@lwc/template-compiler": "^9.1.1",
+    "@storybook/addon-a11y": "^10.3.5",
+    "@storybook/addon-docs": "^10.3.5",
+    "@storybook/html-vite": "^10.3.5",
+    "gh-pages": "^6.3.0",
+    "lightning-base-components": "^1.28.17-alpha",
+    "lwc": "^9.1.1",
+    "rollup": "^4",
+    "storybook": "^10.3.5",
+    "vite": "^6",
+    "vite-plugin-lwc": "^4.1.0"
+  }
+}

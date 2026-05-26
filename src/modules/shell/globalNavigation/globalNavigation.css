@@ -1,0 +1,325 @@
+:host {
+    display: block;
+}
+
+/* Ensure assistive-text spans are visually hidden in synthetic shadow mode */
+.slds-assistive-text {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* Waffle icon dots — re-declared inside component scope so synthetic shadow
+   can guarantee they are applied regardless of global CSS pierce behaviour */
+.slds-icon-waffle {
+    width: 1.3125rem;
+    height: 1.3125rem;
+    position: relative;
+    display: block;
+    cursor: pointer;
+}
+
+.slds-icon-waffle .slds-r1,
+.slds-icon-waffle .slds-r2,
+.slds-icon-waffle .slds-r3,
+.slds-icon-waffle .slds-r4,
+.slds-icon-waffle .slds-r5,
+.slds-icon-waffle .slds-r6,
+.slds-icon-waffle .slds-r7,
+.slds-icon-waffle .slds-r8,
+.slds-icon-waffle .slds-r9 {
+    width: 0.3125rem;
+    height: 0.3125rem;
+    background-color: var(--slds-g-color-neutral-base-50, #747474);
+    display: inline-block;
+    position: absolute;
+    border-radius: 50%;
+    transition: background-color 100ms;
+}
+
+/* 3×3 grid positions */
+.slds-icon-waffle .slds-r1 { top: 0;          left: 0; }
+.slds-icon-waffle .slds-r2 { top: 0;          left: 0.4375rem; }
+.slds-icon-waffle .slds-r3 { top: 0;          left: 0.875rem; }
+.slds-icon-waffle .slds-r4 { top: 0.4375rem;  left: 0; }
+.slds-icon-waffle .slds-r5 { top: 0.4375rem;  left: 0.4375rem; }
+.slds-icon-waffle .slds-r6 { top: 0.4375rem;  left: 0.875rem; }
+.slds-icon-waffle .slds-r7 { top: 0.875rem;   left: 0; }
+.slds-icon-waffle .slds-r8 { top: 0.875rem;   left: 0.4375rem; }
+.slds-icon-waffle .slds-r9 { top: 0.875rem;   left: 0.875rem; }
+
+/* Hover state for waffle icon - yellow/orange dots (diagonal) */
+.slds-icon-waffle_container:hover .slds-icon-waffle .slds-r1,
+.slds-icon-waffle_container:hover .slds-icon-waffle .slds-r5,
+.slds-icon-waffle_container:hover .slds-icon-waffle .slds-r9 {
+    background-color: var(--slds-g-color-warning-base-50, #fe9339);
+}
+
+/* Hover state for waffle icon - blue dots (remaining) */
+.slds-icon-waffle_container:hover .slds-icon-waffle .slds-r2,
+.slds-icon-waffle_container:hover .slds-icon-waffle .slds-r3,
+.slds-icon-waffle_container:hover .slds-icon-waffle .slds-r4,
+.slds-icon-waffle_container:hover .slds-icon-waffle .slds-r6,
+.slds-icon-waffle_container:hover .slds-icon-waffle .slds-r7,
+.slds-icon-waffle_container:hover .slds-icon-waffle .slds-r8 {
+    background-color: var(--slds-g-color-brand-base-50, #0176d3);
+}
+
+/* ── Active underline: label only, not chevron ────────────────────────────*/
+/* The global ::after spans left:0/right:0 covering the chevron too — hide it */
+.slds-context-bar__object-switcher.slds-is-active::after,
+.slds-context-bar__object-switcher:not(.slds-no-hover):hover::after {
+    display: none;
+}
+
+/* Re-add a bottom underline scoped only to the label text */
+.slds-context-bar__object-switcher.slds-is-active .slds-context-bar__label-action {
+    position: relative;
+}
+
+.slds-context-bar__object-switcher.slds-is-active .slds-context-bar__label-action::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--slds-g-color-accent-2, #0176d3);
+    opacity: 1;
+}
+
+/* Chevron rotation when open */
+.oms-nav__chevron-icon {
+    display: block;
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+    color: var(--slds-g-color-brand-base-50, #0176d3);
+}
+
+[aria-expanded="true"] .oms-nav__chevron-icon {
+    transform: rotate(180deg);
+}
+
+/* ── Dropdown ─────────────────────────────────────────────────────────────*/
+.oms-nav__dropdown {
+    position: absolute;
+    top: 100%;
+    margin-top: -1px;
+    left: 0;
+    z-index: 9000;
+    min-width: 16rem;
+    max-height: 22rem;
+    overflow-y: auto;
+    background-color: var(--slds-g-color-surface-container-1, #fff);
+    border: 1px solid var(--slds-g-color-border-1, #c9c9c9);
+    border-radius: var(--slds-g-radius-border-2, 0.25rem);
+    box-shadow: var(--slds-g-shadow-2, 0 2px 4px rgba(0,0,0,.16));
+    padding-block-start: var(--slds-g-spacing-1, 0.25rem);
+}
+
+.oms-nav__dropdown-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Option row */
+.oms-nav__option {
+    display: flex;
+    align-items: center;
+    gap: var(--slds-g-spacing-2, 0.5rem);
+    padding: var(--slds-g-spacing-2, 0.5rem) var(--slds-g-spacing-3, 0.75rem);
+    cursor: pointer;
+    outline: none;
+}
+
+.oms-nav__option:hover {
+    background-color: var(--slds-g-color-surface-container-2, #f3f3f3);
+}
+
+.oms-nav__option:focus {
+    background-color: var(--slds-g-color-surface-container-2, #f3f3f3);
+    box-shadow: inset 0 0 0 2px var(--slds-g-color-accent-2, #0176d3);
+}
+
+.oms-nav__option[aria-selected="true"] {
+    background-color: var(--slds-g-color-brand-container-1, #e8f4ff);
+}
+
+.oms-nav__option[aria-selected="true"]:hover {
+    background-color: var(--slds-g-color-brand-container-2, #d0e9ff);
+}
+
+/* Option icon tile */
+.oms-nav__option-icon-wrap {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+/* Option label */
+.oms-nav__option-body {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.oms-nav__option-label {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--slds-g-font-size-3, 0.8125rem);
+    color: var(--slds-g-color-on-surface-1, #080707);
+}
+
+/* ── Dropdown footer ──────────────────────────────────────────────────────*/
+.oms-nav__dropdown-footer {
+    border-top: 1px solid var(--slds-g-color-border-1, #e5e5e5);
+    padding: var(--slds-g-spacing-2, 0.5rem) var(--slds-g-spacing-3, 0.75rem);
+}
+
+.oms-nav__edit-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--slds-g-spacing-1, 0.25rem);
+    font-size: var(--slds-g-font-size-2, 0.75rem);
+    color: var(--slds-g-color-brand-base-50, #0176d3);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.oms-nav__edit-icon {
+    width: 0.875rem;
+    height: 0.875rem;
+    fill: currentColor;
+}
+
+/* ── Subtab label truncation ──────────────────────────────────────────────*/
+.slds-context-bar__item_tab .slds-truncate {
+    max-width: 10rem;
+}
+
+/* ── Waffle trigger container: don't clip the app launcher pointer ───────*/
+.slds-context-bar__dropdown-trigger {
+    overflow: visible;
+}
+
+.oms-nav__app-launcher {
+    position: absolute;
+    top: calc(100% + 0.75rem);
+    left: 0;
+    z-index: 9100;
+    width: min(20rem, calc(100vw - 1rem));
+    max-height: min(32rem, calc(100vh - 5rem));
+    background: var(--slds-g-color-surface-container-1, #fff);
+    border: 1px solid var(--slds-g-color-border-1, #c9c9c9);
+    border-radius: var(--slds-g-radius-border-3, 0.5rem);
+    box-shadow: var(--slds-g-shadow-3, 0 4px 16px rgba(0, 0, 0, 0.16));
+    overflow: visible;
+}
+
+.oms-nav__app-launcher-pointer {
+    position: absolute;
+    top: -0.75rem;
+    left: 1rem;
+    width: 21px;
+    height: 21px;
+    background: var(--slds-g-color-surface-container-1, #fff);
+    border-left: 1px solid var(--slds-g-color-border-1, #c9c9c9);
+    border-top: 1px solid var(--slds-g-color-border-1, #c9c9c9);
+    transform: rotate(45deg);
+    display: block;
+    z-index: 9999 !important;
+}
+
+.oms-nav__app-launcher-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem 0.5rem;
+}
+
+.oms-nav__app-launcher-title {
+    margin: 0;
+    font-size: 20px;
+    line-height: 1.25;
+    font-weight: 400;
+    color: rgb(3, 35, 77);
+}
+
+.oms-nav__app-launcher-search-wrap {
+    padding: 0.25rem 1rem 0.5rem;
+}
+
+.oms-nav__app-launcher-body {
+    padding: 0 1rem 0.75rem;
+}
+
+.oms-nav__apps-heading {
+    margin: 0 0 0.25rem;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgb(3, 35, 77);
+}
+
+.oms-nav__apps-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.oms-nav__app-item {
+    width: calc(100% + 1.5rem);
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 12px;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 8px;
+    margin: 0 -0.75rem;
+}
+
+.oms-nav__app-item:hover {
+    background: var(--slds-g-color-brand-container-1, #e8f4ff);
+}
+
+.oms-nav__app-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    flex-shrink: 0;
+    border-radius: 8px;
+}
+
+.oms-nav__app-label {
+    font-size: 13px;
+    line-height: 1.5;
+    font-weight: 400;
+    color: var(--slds-g-color-neutral-base-10, #181818);
+}
+
+.oms-nav__view-all-link {
+    margin-top: 0.5rem;
+    display: inline-block;
+    color: var(--slds-g-color-brand-base-50, #0176d3);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.oms-nav__view-all-link:hover {
+    color: rgb(3, 35, 77);
+    text-decoration: none;
+}

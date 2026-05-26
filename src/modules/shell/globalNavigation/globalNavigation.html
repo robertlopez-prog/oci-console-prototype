@@ -1,0 +1,170 @@
+<template>
+    <nav class="slds-context-bar slds-context-bar_tabs" aria-label="Order Management console">
+
+        <div class="slds-context-bar__primary">
+
+            <!-- Waffle + App name -->
+            <div class={waffleTriggerClass}>
+                <div class="slds-context-bar__icon-action">
+                    <button type="button"
+                        class="slds-button slds-icon-waffle_container slds-context-bar__button"
+                        title="App Launcher"
+                        aria-label="App Launcher"
+                        aria-expanded={waffleAriaExpanded}
+                        aria-haspopup="true"
+                        aria-controls="oms-app-launcher-menu"
+                        onclick={handleWaffleOpen}>
+                        <span class="slds-icon-waffle">
+                            <span class="slds-r1"></span><span class="slds-r2"></span><span class="slds-r3"></span>
+                            <span class="slds-r4"></span><span class="slds-r5"></span><span class="slds-r6"></span>
+                            <span class="slds-r7"></span><span class="slds-r8"></span><span class="slds-r9"></span>
+                        </span>
+                        <span class="slds-assistive-text">App Launcher</span>
+                    </button>
+                </div>
+                <span class="slds-context-bar__label-action slds-context-bar__app-name">
+                    <span class="slds-truncate" title={appName}>{appName}</span>
+                </span>
+                <template lwc:if={isWaffleMenuOpen}>
+                    <section id="oms-app-launcher-menu" class="oms-nav__app-launcher" role="dialog" aria-label="App Launcher">
+                        <span class="oms-nav__app-launcher-pointer" aria-hidden="true"></span>
+                        <header class="oms-nav__app-launcher-header">
+                            <h2 class="oms-nav__app-launcher-title">App Launcher</h2>
+                            <lightning-button-icon icon-name="utility:close"
+                                variant="bare"
+                                alternative-text="Close App Launcher"
+                                title="Close App Launcher"
+                                onclick={handleWaffleOpen}></lightning-button-icon>
+                        </header>
+                        <div class="oms-nav__app-launcher-search-wrap">
+                            <lightning-input
+                                type="search"
+                                placeholder="Search apps and items..."
+                                variant="label-hidden"
+                                onchange={handleAppSearchChange}>
+                                <span slot="label">Search apps and items</span>
+                            </lightning-input>
+                        </div>
+                        <div class="oms-nav__app-launcher-body">
+                            <h3 class="oms-nav__apps-heading">Apps</h3>
+                            <ul class="oms-nav__apps-list">
+                                <template for:each={appLauncherItems} for:item="app">
+                                    <li key={app.id}>
+                                        <button type="button"
+                                            class="oms-nav__app-item"
+                                            data-app-id={app.id}
+                                            onclick={handleAppLauncherItemClick}>
+                                            <template lwc:if={app.customIcon}>
+                                                <img src={app.customIcon} alt="" class="oms-nav__app-icon" aria-hidden="true" />
+                                            </template>
+                                            <template lwc:else>
+                                                <lightning-icon icon-name={app.iconName} size="medium" alternative-text="" aria-hidden="true"></lightning-icon>
+                                            </template>
+                                            <span class="oms-nav__app-label slds-truncate" title={app.label}>{app.label}</span>
+                                        </button>
+                                    </li>
+                                </template>
+                            </ul>
+                            <a href="#" class="oms-nav__view-all-link" onclick={handleAppLauncherItemClick}>View All</a>
+                        </div>
+                    </section>
+                </template>
+            </div>
+
+            <!-- Object switcher: workspace label + chevron -->
+            <div class={workspaceTabClass}>
+                <a class="slds-context-bar__label-action"
+                    role="button"
+                    tabindex="0"
+                    title={activeWorkspaceLabel}
+                    onclick={handleWorkspaceTabClick}>
+                    <span class="slds-truncate">{activeWorkspaceLabel}</span>
+                </a>
+                <div class="slds-context-bar__icon-action slds-context-bar__item_divider-left">
+                    <button type="button"
+                        class="slds-button slds-button_icon slds-button_icon-container slds-button_icon-x-small slds-context-bar__button"
+                        aria-haspopup="listbox"
+                        aria-expanded={workspaceAriaExpanded}
+                        aria-controls="oms-workspace-menu"
+                        title="Open workspace menu"
+                        onclick={handleWorkspaceTriggerClick}>
+                        <svg class="oms-nav__chevron-icon slds-button__icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                        </svg>
+                        <span class="slds-assistive-text">Open workspace menu</span>
+                    </button>
+                </div>
+
+                <!-- Workspace listbox dropdown -->
+                <template lwc:if={isWorkspaceMenuOpen}>
+                    <div id="oms-workspace-menu" class="oms-nav__dropdown" role="presentation">
+                        <ul class="oms-nav__dropdown-list" role="listbox" aria-label="Workspaces" onkeydown={handleWorkspaceMenuKeydown}>
+                            <template for:each={workspaceItems} for:item="ws">
+                                <li key={ws.label} role="presentation">
+                                    <div class={ws.optionClass}
+                                        role="option"
+                                        aria-selected={ws.isSelected}
+                                        tabindex={ws.tabindex}
+                                        data-workspace-label={ws.label}
+                                        onclick={handleWorkspaceSelect}>
+                                        <span class="oms-nav__option-icon-wrap">
+                                            <lightning-icon icon-name={ws.iconName} size="small" alternative-text="" aria-hidden="true"></lightning-icon>
+                                        </span>
+                                        <span class="oms-nav__option-body">
+                                            <span class="oms-nav__option-label slds-truncate" title={ws.label}>{ws.label}</span>
+                                        </span>
+                                    </div>
+                                </li>
+                            </template>
+                        </ul>
+                        <div class="oms-nav__dropdown-footer">
+                            <button type="button" class="oms-nav__edit-btn" title="Edit workspaces">
+                                <svg class="oms-nav__edit-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                </svg>
+                                <span>Edit</span>
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+        </div>
+
+        <!-- Subtabs (open record tabs) -->
+        <template lwc:if={hasSubtabs}>
+            <div class="slds-context-bar__secondary">
+                <ul class="slds-grid" role="tablist">
+                    <template for:each={subtabs} for:item="tab">
+                        <li key={tab.id} class={tab.itemClass} role="presentation">
+                            <a class="slds-context-bar__label-action"
+                                role="tab"
+                                aria-selected={tab.isActive}
+                                title={tab.label}
+                                data-id={tab.id}
+                                onclick={handleSubtabClick}>
+                                <template lwc:if={tab.iconName}>
+                                    <lightning-icon icon-name={tab.iconName} size="x-small" alternative-text={tab.label} class="slds-m-right_x-small"></lightning-icon>
+                                </template>
+                                <span class="slds-truncate">{tab.label}</span>
+                            </a>
+                            <div class="slds-context-bar__icon-action slds-context-bar__item_divider-left">
+                                <button class="slds-button slds-button_icon slds-button_icon-container slds-button_icon-x-small slds-context-bar__button"
+                                    title="Close tab"
+                                    aria-label="Close tab"
+                                    data-id={tab.id}
+                                    onclick={handleSubtabClose}>
+                                    <svg class="slds-button__icon" aria-hidden="true" focusable="false" viewBox="0 0 520 520">
+                                        <path fill="currentColor" d="M292 260l172-172a22 22 0 0 0-32-32L260 228 88 56a22 22 0 0 0-32 32l172 172L56 432a22 22 0 0 0 32 32l172-172 172 172a22 22 0 0 0 32-32z"/>
+                                    </svg>
+                                    <span class="slds-assistive-text">Close tab</span>
+                                </button>
+                            </div>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+        </template>
+
+    </nav>
+</template>

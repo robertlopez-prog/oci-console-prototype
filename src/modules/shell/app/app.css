@@ -1,0 +1,52 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+/* Shell is sticky — no margin-top needed on the body */
+.oms-app-body {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden;
+    background-color: var(--slds-g-color-surface-2, #f3f3f3);
+}
+
+.oms-app-layout {
+    display: flex;
+    height: 100%;
+}
+
+.oms-app-content {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.oms-app-scroll {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: auto;
+    scrollbar-gutter: stable;
+}
+
+.oms-app-main {
+    min-height: 100%;
+}
+
+.slds-panel {
+    flex-shrink: 0;
+    width: 0;
+    overflow: hidden;
+    transition: width 0.2s ease;
+    background-color: var(--slds-g-color-surface-1, #fff);
+    border-left: 1px solid var(--slds-g-color-border-1, #e5e5e5);
+}
+
+.slds-panel.slds-is-open {
+    width: 20rem;
+}

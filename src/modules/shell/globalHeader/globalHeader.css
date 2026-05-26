@@ -1,0 +1,168 @@
+:host {
+    display: block;
+}
+
+/* Ensure assistive-text links are visually hidden in synthetic shadow mode
+   (global SLDS sheet may not pierce the shadow boundary reliably) */
+.slds-assistive-text {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+.slds-global-header_container {
+    position: relative;
+    background-color: var(--slds-g-color-surface-container-1, #fff);
+}
+
+.slds-global-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: var(--slds-s-header-sizing-height, 3.125rem);
+    /* No horizontal padding here — each item owns its own edge padding,
+       preventing double-stacking with the global slds2.cosmos.css rule
+       .slds-global-header__item { padding: 0 var(--slds-g-spacing-4) } */
+    padding: 0;
+    box-shadow: none;
+}
+
+.oms-global-header__logo {
+    /* Override global .slds-global-header__logo { width:12.5rem; height:2.5rem }
+       which is sized for the full wordmark — we only show the cloud mark */
+    width: auto;
+    height: auto;
+    background-image: none !important;
+    display: flex;
+    align-items: center;
+}
+
+.oms-global-header__logo-mark {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: block;
+}
+
+/* Each item owns 16px horizontal padding — matches Figma spec and SLDS blueprint.
+   This scoped rule (higher specificity in synthetic shadow) overrides the same
+   rule from the global stylesheet, preventing any double-application. */
+.slds-global-header__item {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    padding: 0 var(--slds-g-spacing-4, 1rem);
+}
+
+.slds-global-header__item_search {
+    flex: 1 1 auto;
+    justify-content: center;
+    padding: 0 var(--slds-g-spacing-4, 1rem);
+}
+
+.oms-global-header__search {
+    display: flex;
+    align-items: center;
+    gap: var(--slds-g-spacing-2, 0.5rem);
+    width: 100%;
+    max-width: 30rem;
+    height: 2rem;
+    padding: 0 var(--slds-g-spacing-3, 0.75rem);
+    background: var(--slds-g-color-surface-1, #fff);
+    border: 1px solid var(--slds-g-color-border-2, #dddbda);
+    border-radius: var(--slds-g-radius-border-pill, 15rem);
+    cursor: pointer;
+    color: var(--slds-g-color-on-surface-2, #706e6b);
+    font-size: var(--slds-g-font-size-3, 0.8125rem);
+    font-family: inherit;
+    appearance: none;
+}
+
+.oms-global-header__search:hover {
+    border-color: var(--slds-g-color-border-3, #b0adab);
+    background: var(--slds-g-color-surface-2, #fafaf9);
+}
+
+.oms-global-header__search-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    color: var(--slds-g-color-on-surface-2, #706e6b);
+}
+
+.oms-global-header__search-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--slds-g-color-on-surface-2, #706e6b);
+}
+
+.slds-global-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: var(--slds-g-spacing-3, 0.75rem);
+}
+
+.slds-global-actions__item {
+    display: flex;
+    align-items: center;
+    /* Override global slds2.cosmos.css .slds-global-actions__item { margin: 0 8px }
+       which doubles spacing on top of our gap in synthetic shadow mode */
+    margin: 0;
+}
+
+.slds-global-actions__favorites {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+.oms-global-header__avatar-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--slds-g-radius-border-circle, 9999px);
+}
+
+.oms-header-action-tooltip {
+    position: relative;
+    display: inline-flex;
+}
+
+.oms-header-action-tooltip::after {
+    content: attr(data-oms-header-tooltip);
+    position: absolute;
+    top: calc(100% + 0.375rem);
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    background: var(--slds-g-color-neutral-base-10, #222);
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 100;
+}
+
+.oms-header-action-tooltip:hover::after {
+    opacity: 1;
+}

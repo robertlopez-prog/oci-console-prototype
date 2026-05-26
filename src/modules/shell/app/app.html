@@ -1,0 +1,23 @@
+<template>
+    <shell-global-shell
+        current-page={currentNavPage}
+        workspace-paths={workspacePaths}
+        onnavigate={handleNavNavigate}
+        onpanelselect={handlePanelSelect}>
+    </shell-global-shell>
+
+    <main class="oms-app-body" id="main-content">
+        <div class="oms-app-layout">
+            <div class="oms-app-content">
+                <div class="oms-app-scroll">
+                    <div class="oms-app-main">
+                        <lwc:component lwc:is={componentCtor} onnavigateback={handleNavigateBack}></lwc:component>
+                    </div>
+                </div>
+            </div>
+            <div class={panelClasses}>
+                <shell-panel selected-panel={selectedPanel} onpanelclose={handlePanelClose}></shell-panel>
+            </div>
+        </div>
+    </main>
+</template>

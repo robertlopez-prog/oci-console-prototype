@@ -1,0 +1,227 @@
+<template>
+    <div class="oci-page">
+
+        <!-- ── Page Header ── -->
+        <div class="slds-page-header oci-page__header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media slds-media_center">
+                        <div class="slds-media__figure">
+                            <lightning-icon icon-name="standard:product" size="medium" alternative-text="Omnichannel Inventory"></lightning-icon>
+                        </div>
+                        <div class="slds-media__body">
+                            <p class="slds-text-title oci-page__eyebrow">Omnichannel Inventory</p>
+                            <h1 class="slds-page-header__title">Find and modify product inventory and availability for your store.</h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-page-header__col-actions oci-header-actions">
+                    <lightning-button-group>
+                        <lightning-button label="Add Inventory" variant="neutral" onclick={handleAddInventory}></lightning-button>
+                        <lightning-button label="Import Inventory" variant="neutral" onclick={handleImport}></lightning-button>
+                        <lightning-button
+                            label="Delete Inventory"
+                            variant="neutral"
+                            class="oci-btn--delete"
+                            icon-name="utility:delete"
+                            onclick={handleDeleteInventory}>
+                        </lightning-button>
+                    </lightning-button-group>
+                    <lightning-button-menu
+                        label="View Job History"
+                        icon-name="utility:clock"
+                        variant="border"
+                        menu-alignment="right"
+                        onselect={handleJobHistorySelect}
+                        class="oci-job-history-menu">
+                        <lightning-menu-item
+                            value="import-history"
+                            label="Import History"
+                            prefix-icon-name="utility:upload">
+                        </lightning-menu-item>
+                        <lightning-menu-item
+                            value="deletion-history"
+                            label="Deletion History"
+                            prefix-icon-name="utility:delete">
+                        </lightning-menu-item>
+                    </lightning-button-menu>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Tab Bar ── -->
+        <div class="oci-tabs">
+            <div class="oci-tabs__bar">
+                <button
+                    class={inventoryLookupTabClass}
+                    onclick={handleTabInventory}>
+                    Inventory Lookup
+                </button>
+                <button
+                    class={locationMgmtTabClass}
+                    onclick={handleTabLocations}>
+                    Location Management
+                </button>
+            </div>
+        </div>
+
+        <!-- ── Tab Content ── -->
+        <div class="oci-tab-content">
+
+            <!-- INVENTORY LOOKUP TAB -->
+            <template lwc:if={isInventoryLookupActive}>
+                <div class="oci-lookup">
+                    <!-- Search Bar -->
+                    <div class="oci-lookup__search slds-grid slds-gutters_small slds-grid_vertical-align-end">
+                        <div class="slds-col slds-size_3-of-12">
+                            <lightning-input
+                                type="text"
+                                label="SKU"
+                                placeholder="Enter SKU..."
+                                value={searchSku}
+                                onchange={handleSkuChange}>
+                            </lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_3-of-12">
+                            <lightning-combobox
+                                label="Location Group"
+                                placeholder="Select..."
+                                value={selectedLocationGroup}
+                                options={locationGroupOptions}
+                                onchange={handleLocationGroupChange}>
+                            </lightning-combobox>
+                        </div>
+                        <div class="slds-col slds-size_2-of-12">
+                            <lightning-button label="Get Inventory Data" variant="brand" onclick={handleGetInventoryData}></lightning-button>
+                        </div>
+                    </div>
+
+                    <!-- Results or Empty State -->
+                    <template lwc:if={hasInventoryResults}>
+                        <!-- Group-level summary -->
+                        <div class="oci-lookup__group-header slds-grid slds-grid_vertical-align-center">
+                            <div class="slds-col">
+                                <span class="slds-text-title_caps oci-lookup__group-label">Location Group</span>
+                            </div>
+                            <div class="slds-col slds-text-align_right">
+                                <span class="slds-text-body_small slds-text-color_weak">Unknown Product (SKU: {searchSku})</span>
+                            </div>
+                        </div>
+                        <lightning-datatable
+                            key-field="id"
+                            data={groupSummaryRows}
+                            columns={groupColumns}
+                            hide-checkbox-column
+                            class="oci-lookup__group-table">
+                        </lightning-datatable>
+
+                        <!-- Location breakdown -->
+                        <div class="oci-lookup__locations-header">
+                            <span class="slds-text-title_caps">Locations ({inventoryResults.length})</span>
+                        </div>
+                        <lightning-datatable
+                            key-field="id"
+                            data={inventoryResults}
+                            columns={locationColumns}
+                            hide-checkbox-column
+                            class="oci-lookup__locations-table">
+                        </lightning-datatable>
+                    </template>
+
+                    <template lwc:else>
+                        <div class="oci-lookup__empty">
+                            <div class="oci-lookup__empty-illustration" aria-hidden="true">
+                                <lightning-icon icon-name="utility:search" size="large" alternative-text=""></lightning-icon>
+                            </div>
+                            <p class="oci-lookup__empty-text">To find inventory data, look up a SKU.</p>
+                            <p class="oci-lookup__empty-subtext">Enter a SKU and location group.</p>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <!-- LOCATION MANAGEMENT TAB -->
+            <template lwc:if={isLocationMgmtActive}>
+                <div class="oci-location-mgmt slds-grid slds-gutters">
+                    <div class="slds-col slds-size_8-of-12">
+                        <!-- Location Groups list -->
+                        <lightning-card title="All Location Groups" icon-name="standard:groups">
+                            <div slot="actions">
+                                <lightning-button label="New" variant="neutral" size="small"></lightning-button>
+                            </div>
+                            <div class="slds-p-around_small">
+                                <lightning-datatable
+                                    key-field="id"
+                                    data={locationGroups}
+                                    columns={locationGroupColumns}
+                                    hide-checkbox-column>
+                                </lightning-datatable>
+                            </div>
+                        </lightning-card>
+
+                        <!-- Locations list -->
+                        <lightning-card title="All Locations" icon-name="standard:location" class="slds-m-top_medium">
+                            <div slot="actions">
+                                <lightning-button label="New" variant="neutral" size="small"></lightning-button>
+                            </div>
+                            <div class="slds-p-around_small">
+                                <lightning-datatable
+                                    key-field="id"
+                                    data={locations}
+                                    columns={locationColumns2}
+                                    hide-checkbox-column>
+                                </lightning-datatable>
+                            </div>
+                        </lightning-card>
+                    </div>
+
+                    <!-- Right panel: Last commit status -->
+                    <div class="slds-col slds-size_4-of-12">
+                        <lightning-card title="Location Management Changes" icon-name="utility:sync">
+                            <div class="slds-p-around_medium">
+                                <p class="slds-text-body_small slds-text-color_weak">Location to OCI</p>
+                                <p class="slds-text-body_regular slds-m-top_x-small">Last commit completed 4/14/2026, 12:17 PM MDT</p>
+                                <div class="slds-m-top_medium">
+                                    <lightning-button label="Sync" variant="brand" class="slds-m-right_x-small"></lightning-button>
+                                    <lightning-button label="View All" variant="neutral"></lightning-button>
+                                </div>
+                            </div>
+                        </lightning-card>
+                    </div>
+                </div>
+            </template>
+
+        </div>
+    </div>
+
+    <!-- ── Delete Inventory Modal (rendered conditionally) ── -->
+    <template lwc:if={isDeleteModalOpen}>
+        <ui-delete-inventory-modal
+            onclose={handleModalClose}
+            onsubmit={handleModalSubmit}>
+        </ui-delete-inventory-modal>
+    </template>
+
+    <!-- ── Toast notification ── -->
+    <template lwc:if={showToast}>
+        <div class="oci-toast">
+            <div class={toastClass} role="status">
+                <span class="slds-assistive-text">{toastVariant}</span>
+                <lightning-icon icon-name={toastIcon} variant="inverse" size="small" class="slds-m-right_small" alternative-text=""></lightning-icon>
+                <div class="slds-notify__content">
+                    <h2 class="slds-text-heading_small slds-text-color_inverse">{toastTitle}</h2>
+                    <p class="slds-text-color_inverse-weak">{toastMessage}</p>
+                </div>
+                <div class="slds-notify__close">
+                    <lightning-button-icon
+                        icon-name="utility:close"
+                        variant="bare-inverse"
+                        alternative-text="Close"
+                        onclick={handleToastClose}>
+                    </lightning-button-icon>
+                </div>
+            </div>
+        </div>
+    </template>
+
+</template>

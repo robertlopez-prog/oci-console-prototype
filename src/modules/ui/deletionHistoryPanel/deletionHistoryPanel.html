@@ -1,0 +1,201 @@
+<template>
+    <div class="dh-panel">
+
+        <!-- Panel header (mirrors "All Import Inventory Changes" pattern) -->
+        <div class="dh-panel__header">
+            <div class="slds-media slds-media_center">
+                <div class="slds-media__figure">
+                    <span class="slds-icon_container slds-icon-standard-product">
+                        <lightning-icon icon-name="utility:delete" size="small" alternative-text="Deletion History"></lightning-icon>
+                    </span>
+                </div>
+                <div class="slds-media__body">
+                    <h1 class="dh-panel__title">All Deletion History</h1>
+                    <p class="dh-panel__subtitle">{recordCountLabel} · Sorted by Started At · Updated a few seconds ago</p>
+                </div>
+            </div>
+            <div class="dh-panel__header-actions">
+                <lightning-input
+                    type="search"
+                    placeholder="Search this list..."
+                    variant="label-hidden"
+                    value={searchQuery}
+                    onchange={handleSearch}>
+                    <span slot="label">Search deletion jobs</span>
+                </lightning-input>
+                <lightning-button-icon icon-name="utility:refresh" alternative-text="Refresh" title="Refresh" variant="border-filled" onclick={handleRefresh}></lightning-button-icon>
+            </div>
+        </div>
+
+        <!-- Job list table -->
+        <div class="dh-panel__table-wrap">
+            <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped dh-table" role="grid" aria-label="Deletion History">
+                <thead>
+                    <tr class="slds-line-height_reset">
+                        <th scope="col" class="slds-text-title_caps dh-table__col-id">Job ID</th>
+                        <th scope="col" class="slds-text-title_caps">Submitted By</th>
+                        <th scope="col" class="slds-text-title_caps dh-table__col-status">Status</th>
+                        <th scope="col" class="slds-text-title_caps">File</th>
+                        <th scope="col" class="slds-text-title_caps">Started At</th>
+                        <th scope="col" class="slds-text-title_caps">Finished At</th>
+                        <th scope="col" class="slds-text-title_caps dh-table__col-rows">Rows Deleted</th>
+                        <th scope="col" class="slds-text-title_caps dh-table__col-rows">Rows Failed</th>
+                        <th scope="col" class="slds-text-title_caps dh-table__col-actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template for:each={filteredJobs} for:item="job">
+                        <tr key={job.id} class="slds-hint-parent">
+                            <td data-label="Job ID">
+                                <a class="dh-table__job-id" href="#" onclick={handleJobClick} data-id={job.id}>{job.id}</a>
+                            </td>
+                            <td data-label="Submitted By">{job.submittedBy}</td>
+                            <td data-label="Status">
+                                <lightning-badge label={job.status} class={job.statusBadgeClass}></lightning-badge>
+                            </td>
+                            <td data-label="File">
+                                <span class="slds-truncate dh-table__file-name" title={job.fileName}>{job.fileName}</span>
+                            </td>
+                            <td data-label="Started At">{job.startedAt}</td>
+                            <td data-label="Finished At">{job.finishedAt}</td>
+                            <td data-label="Rows Deleted" class="slds-text-align_right">
+                                <template lwc:if={job.hasRows}>
+                                    <lightning-formatted-number
+                                        value={job.rowsDeleted}
+                                        format-style="decimal">
+                                    </lightning-formatted-number>
+                                </template>
+                                <template lwc:else>—</template>
+                            </td>
+                            <td data-label="Rows Failed" class="slds-text-align_right">
+                                <template lwc:if={job.hasRows}>
+                                    <span class={job.failedCountClass}>
+                                        <lightning-formatted-number
+                                            value={job.rowsFailed}
+                                            format-style="decimal">
+                                        </lightning-formatted-number>
+                                    </span>
+                                </template>
+                                <template lwc:else>—</template>
+                            </td>
+                            <td data-label="Actions">
+                                <div class="dh-table__actions">
+                                    <template lwc:if={job.resultAvailable}>
+                                        <template lwc:if={job.resultExpired}>
+                                            <span class="dh-table__expired-label" title="Results file expired after 24 hours">Results expired</span>
+                                        </template>
+                                        <template lwc:else>
+                                            <lightning-button
+                                                label="Download Results"
+                                                variant="neutral"
+                                                size="small"
+                                                icon-name="utility:download"
+                                                data-id={job.id}
+                                                onclick={handleDownloadResults}>
+                                            </lightning-button>
+                                        </template>
+                                    </template>
+                                    <template lwc:if={job.isCancellable}>
+                                        <lightning-button
+                                            label="Cancel"
+                                            variant="destructive-text"
+                                            size="small"
+                                            data-id={job.id}
+                                            onclick={handleCancelJob}>
+                                        </lightning-button>
+                                    </template>
+                                </div>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+
+            <template lwc:if={noResults}>
+                <div class="dh-panel__empty">
+                    <lightning-icon icon-name="utility:search" size="medium" alternative-text="" aria-hidden="true"></lightning-icon>
+                    <p>{emptyMessage}</p>
+                </div>
+            </template>
+        </div>
+
+        <!-- Detail drawer (shown when a job row is clicked) -->
+        <template lwc:if={selectedJob}>
+            <div class="dh-drawer">
+                <div class="dh-drawer__header">
+                    <h2 class="dh-drawer__title">Job Detail — {selectedJob.id}</h2>
+                    <lightning-button-icon
+                        icon-name="utility:close"
+                        alternative-text="Close"
+                        variant="bare"
+                        onclick={handleCloseDrawer}>
+                    </lightning-button-icon>
+                </div>
+                <div class="dh-drawer__body">
+                    <dl class="slds-dl_horizontal">
+                        <dt class="slds-dl_horizontal__label">Job ID</dt>
+                        <dd class="slds-dl_horizontal__detail dh-drawer__job-id">{selectedJob.id}</dd>
+                        <dt class="slds-dl_horizontal__label">File</dt>
+                        <dd class="slds-dl_horizontal__detail">{selectedJob.fileName}</dd>
+                        <dt class="slds-dl_horizontal__label">Status</dt>
+                        <dd class="slds-dl_horizontal__detail">
+                            <lightning-badge label={selectedJob.status} class={selectedJob.statusBadgeClass}></lightning-badge>
+                        </dd>
+                        <dt class="slds-dl_horizontal__label">Submitted By</dt>
+                        <dd class="slds-dl_horizontal__detail">{selectedJob.submittedBy}</dd>
+                        <dt class="slds-dl_horizontal__label">Started At</dt>
+                        <dd class="slds-dl_horizontal__detail">{selectedJob.startedAt}</dd>
+                        <dt class="slds-dl_horizontal__label">Finished At</dt>
+                        <dd class="slds-dl_horizontal__detail">{selectedJob.finishedAt}</dd>
+                        <dt class="slds-dl_horizontal__label">Total Rows</dt>
+                        <dd class="slds-dl_horizontal__detail">
+                            <lightning-formatted-number value={selectedJob.totalRows} format-style="decimal"></lightning-formatted-number>
+                        </dd>
+                        <dt class="slds-dl_horizontal__label">Rows Deleted</dt>
+                        <dd class="slds-dl_horizontal__detail">
+                            <lightning-formatted-number value={selectedJob.rowsDeleted} format-style="decimal"></lightning-formatted-number>
+                        </dd>
+                        <dt class="slds-dl_horizontal__label">Rows Failed</dt>
+                        <dd class="slds-dl_horizontal__detail">
+                            <span class={selectedJob.failedCountClass}>
+                                <lightning-formatted-number value={selectedJob.rowsFailed} format-style="decimal"></lightning-formatted-number>
+                            </span>
+                        </dd>
+                        <template lwc:if={selectedJob.errorMessage}>
+                            <dt class="slds-dl_horizontal__label">Error</dt>
+                            <dd class="slds-dl_horizontal__detail dh-drawer__error">{selectedJob.errorMessage}</dd>
+                        </template>
+                    </dl>
+
+                    <template lwc:if={selectedJob.isCancelled}>
+                        <div class="dh-drawer__partial-warning">
+                            <lightning-icon icon-name="utility:warning" size="x-small" alternative-text="Warning"></lightning-icon>
+                            <span>This job was cancelled. <strong>{selectedJob.rowsDeleted} records</strong> were permanently deleted before cancellation. These cannot be restored.</span>
+                        </div>
+                    </template>
+
+                    <template lwc:if={selectedJob.resultAvailable}>
+                        <div class="dh-drawer__download">
+                            <template lwc:if={selectedJob.resultExpired}>
+                                <p class="dh-drawer__expired">
+                                    Results file expired (24-hour retention). Contact support if you need to reconstruct deletion history.
+                                </p>
+                            </template>
+                            <template lwc:else>
+                                <lightning-button
+                                    label="Download Full Results (.json.gz)"
+                                    icon-name="utility:download"
+                                    variant="brand"
+                                    onclick={handleDownloadResults}
+                                    data-id={selectedJob.id}>
+                                </lightning-button>
+                                <p class="dh-drawer__retention-note">Results file retained for 24 hours after job completion.</p>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </template>
+
+    </div>
+</template>

@@ -1,0 +1,149 @@
+<template>
+    <header class="slds-global-header_container">
+        <a href="#main-content" class="slds-assistive-text slds-assistive-text_focus">Skip to main content</a>
+
+        <div class="slds-global-header slds-grid slds-grid_align-spread">
+
+            <!-- Logo -->
+            <div class="slds-global-header__item">
+                <div class="slds-global-header__logo oms-global-header__logo">
+                    <img class="oms-global-header__logo-mark" src="/assets/logo-noname.svg" alt="Salesforce" />
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div class="slds-global-header__item slds-global-header__item_search">
+                <button type="button" class="oms-global-header__search" aria-label="Search">
+                    <svg class="oms-global-header__search-icon" aria-hidden="true" focusable="false" viewBox="0 0 520 520">
+                        <path fill="currentColor" d="M496 453 362 320a189 189 0 1 0-340-92 190 190 0 0 0 298 135l133 133a14 14 0 0 0 21 0l21-21a17 17 0 0 0 1-22M210 338a129 129 0 1 1 130-130 129 129 0 0 1-130 130"/>
+                    </svg>
+                    <span class="oms-global-header__search-label">Search...</span>
+                </button>
+            </div>
+
+            <!-- Global Actions -->
+            <div class="slds-global-header__item">
+                <ul class="slds-global-actions">
+
+                    <!-- Agentforce -->
+                    <li class="slds-global-actions__item">
+                        <span class="oms-header-action-tooltip" data-oms-header-tooltip="Agentforce">
+                            <lightning-button-icon
+                                icon-name="utility:agent_astro"
+                                variant="container"
+                                size="medium"
+                                alternative-text="Agentforce"
+                                onclick={handleAgentforceClick}>
+                            </lightning-button-icon>
+                        </span>
+                    </li>
+
+                    <!-- Favorites -->
+                    <li class="slds-global-actions__item">
+                        <ul class="slds-global-actions__favorites slds-button-group-list" role="group" aria-label="Favorites">
+                            <li>
+                                <span class="oms-header-action-tooltip" data-oms-header-tooltip="Add favorite">
+                                    <lightning-button-icon
+                                        icon-name="utility:favorite"
+                                        variant="border"
+                                        size="medium"
+                                        alternative-text="Add favorite">
+                                    </lightning-button-icon>
+                                </span>
+                            </li>
+                            <li>
+                                <span class="oms-header-action-tooltip" data-oms-header-tooltip="Favorites list">
+                                    <lightning-button-icon
+                                        icon-name="utility:down"
+                                        variant="border"
+                                        size="medium"
+                                        alternative-text="Favorites list"
+                                        aria-haspopup="true"
+                                        aria-expanded="false">
+                                    </lightning-button-icon>
+                                </span>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Global Actions -->
+                    <li class="slds-global-actions__item">
+                        <span class="oms-header-action-tooltip" data-oms-header-tooltip="Global Actions">
+                            <lightning-button-icon
+                                icon-name="utility:new"
+                                variant="container"
+                                size="medium"
+                                alternative-text="Global Actions">
+                            </lightning-button-icon>
+                        </span>
+                    </li>
+
+                    <!-- Guidance Center -->
+                    <li class="slds-global-actions__item">
+                        <span class="oms-header-action-tooltip" data-oms-header-tooltip="Guidance Center">
+                            <lightning-button-icon
+                                icon-name="utility:trailhead_alt"
+                                variant="container"
+                                size="medium"
+                                alternative-text="Guidance Center"
+                                onclick={handleTrailheadClick}>
+                            </lightning-button-icon>
+                        </span>
+                    </li>
+
+                    <!-- Help -->
+                    <li class="slds-global-actions__item slds-global-actions__item_help">
+                        <span class="oms-header-action-tooltip" data-oms-header-tooltip="Salesforce Help">
+                            <lightning-button-icon
+                                icon-name="utility:question"
+                                variant="container"
+                                size="medium"
+                                alternative-text="Salesforce Help">
+                            </lightning-button-icon>
+                        </span>
+                    </li>
+
+                    <!-- Setup -->
+                    <li class="slds-global-actions__item">
+                        <span class="oms-header-action-tooltip" data-oms-header-tooltip="Setup">
+                            <lightning-button-icon
+                                icon-name="utility:setup"
+                                variant="container"
+                                size="medium"
+                                alternative-text="Setup"
+                                onclick={handleSettingsClick}>
+                            </lightning-button-icon>
+                        </span>
+                    </li>
+
+                    <!-- Notifications -->
+                    <li class="slds-global-actions__item">
+                        <span class="oms-header-action-tooltip" data-oms-header-tooltip="Notifications">
+                            <lightning-button-icon
+                                icon-name="utility:notification"
+                                variant="container"
+                                size="medium"
+                                alternative-text="Notifications"
+                                onclick={handleNotificationClick}>
+                            </lightning-button-icon>
+                        </span>
+                    </li>
+
+                    <!-- Avatar -->
+                    <li class="slds-global-actions__item slds-global-actions__avatar">
+                        <button type="button" class="oms-global-header__avatar-btn" aria-label="User profile">
+                            <lightning-avatar
+                                src="/assets/profile-avatar.png"
+                                fallback-icon-name="standard:person_account"
+                                alternative-text="User profile"
+                                size="small"
+                                variant="circle">
+                            </lightning-avatar>
+                        </button>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </header>
+</template>
