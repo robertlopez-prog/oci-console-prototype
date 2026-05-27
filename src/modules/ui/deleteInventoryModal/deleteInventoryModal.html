@@ -116,22 +116,6 @@
                             </div>
                         </lightning-card>
 
-                        <!-- Pre-sorted option (advanced) -->
-                        <div class="del-step2__presorted">
-                            <lightning-input
-                                type="toggle"
-                                label="My file is pre-sorted by SKU (faster processing)"
-                                name="presorted"
-                                checked={isPreSorted}
-                                onchange={handlePreSortedChange}
-                                message-toggle-active="Enabled"
-                                message-toggle-inactive="Disabled">
-                            </lightning-input>
-                            <p class="del-step2__presorted-hint">
-                                When enabled, the service skips file partitioning and streams directly for faster processing. The job will fail if a sort violation is detected.
-                            </p>
-                        </div>
-
                         <!-- Confirmation checkbox — required before Submit -->
                         <div class="del-step2__confirm-box">
                             <div class="del-step2__confirm-header">

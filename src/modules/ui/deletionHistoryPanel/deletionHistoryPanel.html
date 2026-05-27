@@ -40,7 +40,6 @@
                         <th scope="col" class="slds-text-title_caps">Finished At</th>
                         <th scope="col" class="slds-text-title_caps dh-table__col-rows">Rows Deleted</th>
                         <th scope="col" class="slds-text-title_caps dh-table__col-rows">Rows Failed</th>
-                        <th scope="col" class="slds-text-title_caps dh-table__col-actions">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -77,34 +76,6 @@
                                     </span>
                                 </template>
                                 <template lwc:else>—</template>
-                            </td>
-                            <td data-label="Actions">
-                                <div class="dh-table__actions">
-                                    <template lwc:if={job.resultAvailable}>
-                                        <template lwc:if={job.resultExpired}>
-                                            <span class="dh-table__expired-label" title="Results file expired after 24 hours">Results expired</span>
-                                        </template>
-                                        <template lwc:else>
-                                            <lightning-button
-                                                label="Download Results"
-                                                variant="neutral"
-                                                size="small"
-                                                icon-name="utility:download"
-                                                data-id={job.id}
-                                                onclick={handleDownloadResults}>
-                                            </lightning-button>
-                                        </template>
-                                    </template>
-                                    <template lwc:if={job.isCancellable}>
-                                        <lightning-button
-                                            label="Cancel"
-                                            variant="destructive-text"
-                                            size="small"
-                                            data-id={job.id}
-                                            onclick={handleCancelJob}>
-                                        </lightning-button>
-                                    </template>
-                                </div>
                             </td>
                         </tr>
                     </template>
