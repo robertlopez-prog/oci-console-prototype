@@ -19,32 +19,30 @@
                     <lightning-button-group>
                         <lightning-button label="Add Inventory" variant="neutral" onclick={handleAddInventory}></lightning-button>
                         <lightning-button label="Import Inventory" variant="neutral" onclick={handleImport}></lightning-button>
-                        <lightning-button
-                            label="Delete Inventory"
-                            variant="neutral"
-                            class="oci-btn--delete"
-                            icon-name="utility:delete"
-                            onclick={handleDeleteInventory}>
-                        </lightning-button>
+                        <lightning-button-menu
+                            alternative-text="More actions"
+                            variant="border"
+                            icon-name="utility:down"
+                            menu-alignment="right"
+                            onselect={handleOverflowSelect}>
+                            <lightning-menu-item
+                                value="delete-inventory"
+                                label="Delete Inventory"
+                                prefix-icon-name="utility:delete">
+                            </lightning-menu-item>
+                            <lightning-menu-divider></lightning-menu-divider>
+                            <lightning-menu-item
+                                value="import-history"
+                                label="Import History"
+                                prefix-icon-name="utility:upload">
+                            </lightning-menu-item>
+                            <lightning-menu-item
+                                value="deletion-history"
+                                label="Delete History"
+                                prefix-icon-name="utility:clock">
+                            </lightning-menu-item>
+                        </lightning-button-menu>
                     </lightning-button-group>
-                    <lightning-button-menu
-                        label="View Job History"
-                        icon-name="utility:clock"
-                        variant="border"
-                        menu-alignment="right"
-                        onselect={handleJobHistorySelect}
-                        class="oci-job-history-menu">
-                        <lightning-menu-item
-                            value="import-history"
-                            label="Import History"
-                            prefix-icon-name="utility:upload">
-                        </lightning-menu-item>
-                        <lightning-menu-item
-                            value="deletion-history"
-                            label="Deletion History"
-                            prefix-icon-name="utility:delete">
-                        </lightning-menu-item>
-                    </lightning-button-menu>
                 </div>
             </div>
         </div>
@@ -55,17 +53,17 @@
                 <button
                     class={inventoryLookupTabClass}
                     onclick={handleTabInventory}>
-                    Inventory Lookup
-                </button>
-                <button
-                    class={locationMgmtTabClass}
-                    onclick={handleTabLocations}>
-                    Location Management
+                    Inventory Records
                 </button>
                 <button
                     class={segmentationTabClass}
                     onclick={handleTabSegmentation}>
                     Segmentation
+                </button>
+                <button
+                    class={locationMgmtTabClass}
+                    onclick={handleTabLocations}>
+                    Location Management
                 </button>
                 <button
                     class={overviewTabClass}
