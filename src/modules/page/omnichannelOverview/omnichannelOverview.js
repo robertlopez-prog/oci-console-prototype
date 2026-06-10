@@ -1,4 +1,4 @@
-import { LightningElement, track } from 'lwc';
+import { LightningElement, api, track } from 'lwc';
 
 // ── Static tenant data ────────────────────────────────────────────────────────
 const LOCATION_GROUPS_TABLE = [
@@ -37,12 +37,19 @@ const TYPE_BADGE_CLASS = {
 // ─────────────────────────────────────────────────────────────────────────────
 export default class OmnichannelOverview extends LightningElement {
 
+    /** Set to true when embedded as a tab inside another page (suppresses standalone page header) */
+    @api embedded = false;
+
     @track syncingRecords = false;
     @track syncingSkus    = false;
     @track recordsValue   = '14.2M';
     @track skusValue      = '28,450';
     @track recordsTs      = 'Updated today at 2:47 PM';
     @track skusTs         = 'Updated today at 2:47 PM';
+
+    // ── Mode helpers ─────────────────────────────────────────────────────────
+    get showPageHeader() { return !this.embedded; }
+    get pageClass()      { return this.embedded ? 'ov-page ov-page--embedded' : 'ov-page'; }
 
     // ── Network metrics (3-col cards) ─────────────────────────────────────────
     get networkMetrics() {

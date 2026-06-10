@@ -67,6 +67,11 @@
                     onclick={handleTabSegmentation}>
                     Segmentation Rules
                 </button>
+                <button
+                    class={overviewTabClass}
+                    onclick={handleTabOverview}>
+                    Omnichannel Overview
+                </button>
             </div>
         </div>
 
@@ -387,6 +392,11 @@
                     </div>
 
                 </div>
+            </template>
+
+            <!-- OMNICHANNEL OVERVIEW TAB -->
+            <template lwc:if={isOverviewActive}>
+                <page-omnichannel-overview embedded></page-omnichannel-overview>
             </template>
 
         </div>

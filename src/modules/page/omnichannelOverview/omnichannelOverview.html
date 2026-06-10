@@ -1,22 +1,24 @@
 <template>
-    <div class="ov-page">
+    <div class={pageClass}>
 
-        <!-- ── Page Header ── -->
-        <div class="slds-page-header ov-page__header">
-            <div class="slds-page-header__row">
-                <div class="slds-page-header__col-title">
-                    <div class="slds-media slds-media_center">
-                        <div class="slds-media__figure">
-                            <lightning-icon icon-name="standard:settings" size="medium" alternative-text="Omnichannel Overview"></lightning-icon>
-                        </div>
-                        <div class="slds-media__body">
-                            <p class="slds-text-title ov-page__eyebrow">Omnichannel Inventory</p>
-                            <h1 class="slds-page-header__title">Omnichannel Overview</h1>
+        <!-- ── Page Header (standalone only) ── -->
+        <template lwc:if={showPageHeader}>
+            <div class="slds-page-header ov-page__header">
+                <div class="slds-page-header__row">
+                    <div class="slds-page-header__col-title">
+                        <div class="slds-media slds-media_center">
+                            <div class="slds-media__figure">
+                                <lightning-icon icon-name="standard:settings" size="medium" alternative-text="Omnichannel Overview"></lightning-icon>
+                            </div>
+                            <div class="slds-media__body">
+                                <p class="slds-text-title ov-page__eyebrow">Omnichannel Inventory</p>
+                                <h1 class="slds-page-header__title">Omnichannel Overview</h1>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </template>
 
         <!-- ── Main Content ── -->
         <div class="ov-content">

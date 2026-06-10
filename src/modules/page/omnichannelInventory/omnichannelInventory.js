@@ -32,7 +32,7 @@ const LOCATIONS = [
 
 export default class OmnichannelInventory extends LightningElement {
     // Tab state
-    @track activeTab = 'inventory-lookup'; // 'inventory-lookup' | 'location-mgmt' | 'segmentation-rules'
+    @track activeTab = 'inventory-lookup'; // 'inventory-lookup' | 'location-mgmt' | 'segmentation-rules' | 'overview'
 
     connectedCallback() {
         // Expose for Playwright test automation
@@ -77,6 +77,7 @@ export default class OmnichannelInventory extends LightningElement {
     get isInventoryLookupActive()  { return this.activeTab === 'inventory-lookup'; }
     get isLocationMgmtActive()     { return this.activeTab === 'location-mgmt'; }
     get isSegmentationRulesActive(){ return this.activeTab === 'segmentation-rules'; }
+    get isOverviewActive()         { return this.activeTab === 'overview'; }
 
     get inventoryLookupTabClass() {
         return `oci-tabs__tab${this.isInventoryLookupActive ? ' oci-tabs__tab--active' : ''}`;
@@ -86,6 +87,9 @@ export default class OmnichannelInventory extends LightningElement {
     }
     get segmentationTabClass() {
         return `oci-tabs__tab${this.isSegmentationRulesActive ? ' oci-tabs__tab--active' : ''}`;
+    }
+    get overviewTabClass() {
+        return `oci-tabs__tab${this.isOverviewActive ? ' oci-tabs__tab--active' : ''}`;
     }
 
     // ── Segmentation computed ───────────────────────────────────────
@@ -231,6 +235,7 @@ export default class OmnichannelInventory extends LightningElement {
     handleTabInventory()    { this.activeTab = 'inventory-lookup'; }
     handleTabLocations()    { this.activeTab = 'location-mgmt'; }
     handleTabSegmentation() { this.activeTab = 'segmentation-rules'; }
+    handleTabOverview()     { this.activeTab = 'overview'; }
 
     // ── Segmentation Rules handlers ─────────────────────────────────
     handleSegSearch(event)      { this.segSearch = event.detail.value; this.segCurrentPage = 1; }
