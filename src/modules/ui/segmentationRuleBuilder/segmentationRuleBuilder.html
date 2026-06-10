@@ -30,18 +30,62 @@
                         <div class="rb-section">
                             <div class="rb-section__header">
                                 <span class="rb-section__step">1</span>
-                                <span class="rb-section__title">Scope — Where does this rule apply?</span>
+                                <span class="rb-section__title">Scope — Where &amp; what does this rule apply to?</span>
                             </div>
 
-                            <lightning-combobox
-                                label="Location(s)"
-                                placeholder="Select location(s)..."
-                                value={locationId}
-                                options={locationOptions}
-                                onchange={handleLocationChange}
-                                required>
-                            </lightning-combobox>
+                            <!-- Multi-select location picker -->
+                            <div class="rb-field-label">
+                                <span class="slds-form-element__label">Location(s)</span>
+                                <span class="rb-field-hint">Select one or more locations</span>
+                            </div>
+                            <div class="rb-location-picker" onblur={handleLocationPickerBlur}>
+                                <!-- Trigger button -->
+                                <button
+                                    type="button"
+                                    class="rb-location-trigger"
+                                    onclick={handleLocationTriggerClick}
+                                    aria-haspopup="listbox"
+                                    aria-expanded={isLocationPickerOpen}>
+                                    <span class="rb-location-trigger__label">{locationSummaryLabel}</span>
+                                    <lightning-icon icon-name="utility:chevrondown" size="x-small" alternative-text=""></lightning-icon>
+                                </button>
 
+                                <!-- Dropdown checklist -->
+                                <template lwc:if={isLocationPickerOpen}>
+                                    <div class="rb-location-dropdown" role="listbox" aria-multiselectable="true">
+                                        <template for:each={locationCheckboxItems} for:item="loc">
+                                            <label key={loc.value} class="rb-location-option">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={loc.checked}
+                                                    data-value={loc.value}
+                                                    onchange={handleLocationCheckboxChange}
+                                                    class="rb-location-option__checkbox" />
+                                                <span class="rb-location-option__label">{loc.label}</span>
+                                            </label>
+                                        </template>
+                                    </div>
+                                </template>
+
+                                <!-- Selected pills -->
+                                <template lwc:if={hasLocations}>
+                                    <div class="rb-location-pills">
+                                        <template for:each={selectedLocationPills} for:item="pill">
+                                            <span key={pill.id} class="rb-pill">
+                                                <span class="rb-pill__label">{pill.label}</span>
+                                                <button
+                                                    type="button"
+                                                    class="rb-pill__remove"
+                                                    data-id={pill.id}
+                                                    onclick={handleRemoveLocation}
+                                                    title="Remove">×</button>
+                                            </span>
+                                        </template>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <!-- SKU Scope -->
                             <div class="rb-sku-scope">
                                 <legend class="slds-form-element__legend slds-form-element__label rb-sku-scope__label">SKU Scope</legend>
                                 <div class="rb-sku-scope__options">
@@ -50,7 +94,6 @@
                                             type="radio"
                                             name="skuScope"
                                             value="all"
-                                            checked={isSpecificSku}
                                             onchange={handleSkuScopeAll}
                                             class="rb-radio-option__input" />
                                         <span class="rb-radio-option__label">All SKUs</span>
@@ -69,7 +112,7 @@
                                     <lightning-input
                                         type="text"
                                         label="SKU ID(s)"
-                                        placeholder="Enter SKU..."
+                                        placeholder="e.g. SKU-001, SKU-002..."
                                         value={specificSku}
                                         onchange={handleSkuInputChange}
                                         class="rb-sku-input">
@@ -78,15 +121,14 @@
                             </div>
                         </div>
 
-                        <!-- STEP 2: Allocation -->
+                        <!-- STEP 2: Rule type -->
                         <div class="rb-section">
                             <div class="rb-section__header">
                                 <span class="rb-section__step">2</span>
-                                <span class="rb-section__title">Allocation — How much can the group access?</span>
+                                <span class="rb-section__title">Rule Type</span>
                             </div>
 
                             <div class="rb-rule-type">
-                                <legend class="slds-form-element__legend slds-form-element__label rb-sku-scope__label">Rule Type</legend>
                                 <div class="rb-rule-type__options">
                                     <button
                                         class={percentageTabClass}
@@ -102,62 +144,117 @@
                                     </button>
                                 </div>
                             </div>
-
-                            <lightning-input
-                                type="number"
-                                label={valueLabel}
-                                placeholder={valuePlaceholder}
-                                value={ruleValue}
-                                onchange={handleValueChange}
-                                min="1"
-                                message-when-range-underflow={validationMessage}>
-                            </lightning-input>
-
-                            <template lwc:if={hasValidationError}>
-                                <p class="rb-error" role="alert">
-                                    <lightning-icon icon-name="utility:error" size="x-small" alternative-text="Error"></lightning-icon>
-                                    {validationMessage}
-                                </p>
-                            </template>
                         </div>
 
-                        <!-- STEP 3: Group + Priority -->
+                        <!-- STEP 3: Group allocation rows -->
                         <div class="rb-section">
                             <div class="rb-section__header">
                                 <span class="rb-section__step">3</span>
-                                <span class="rb-section__title">Target Group &amp; Priority</span>
+                                <span class="rb-section__title">Group Allocations</span>
                             </div>
 
-                            <lightning-combobox
-                                label="Assign to Group"
-                                placeholder="Select a group..."
-                                value={groupId}
-                                options={groupOptions}
-                                onchange={handleGroupChange}
-                                required>
-                            </lightning-combobox>
+                            <p class="rb-section__subtitle">Add one row per group. Each group gets its own allocation cap.</p>
 
-                            <div class="rb-priority">
-                                <lightning-combobox
-                                    label="Priority"
-                                    placeholder="1"
-                                    value={priorityString}
-                                    options={priorityOptions}
-                                    onchange={handlePriorityChange}>
-                                </lightning-combobox>
-                                <p class="rb-priority__hint">Priority controls the order stacked rules are applied for the same target (1 = first). Up to 10 rules can stack.</p>
+                            <!-- Column headers -->
+                            <div class="rb-group-grid rb-group-grid--header">
+                                <span>Group</span>
+                                <span>{groupRowValueHeader}</span>
+                                <span>Priority</span>
+                                <span></span>
                             </div>
+
+                            <!-- Group rows -->
+                            <template for:each={groupRowsWithMeta} for:item="row">
+                                <div key={row.id} class="rb-group-grid rb-group-grid--row">
+                                    <lightning-combobox
+                                        label=""
+                                        placeholder="Select group..."
+                                        value={row.groupId}
+                                        options={row.availableGroups}
+                                        data-rowid={row.id}
+                                        onchange={handleGroupChange}>
+                                    </lightning-combobox>
+
+                                    <lightning-input
+                                        type="number"
+                                        label=""
+                                        placeholder={row.valuePlaceholder}
+                                        value={row.value}
+                                        min="1"
+                                        data-rowid={row.id}
+                                        onchange={handleGroupValueChange}>
+                                    </lightning-input>
+
+                                    <lightning-combobox
+                                        label=""
+                                        placeholder="1"
+                                        value={row.priorityString}
+                                        options={priorityOptions}
+                                        data-rowid={row.id}
+                                        onchange={handleGroupPriorityChange}>
+                                    </lightning-combobox>
+
+                                    <template lwc:if={row.canRemove}>
+                                        <lightning-button-icon
+                                            icon-name="utility:delete"
+                                            variant="bare"
+                                            size="small"
+                                            alternative-text="Remove row"
+                                            data-rowid={row.id}
+                                            onclick={handleRemoveGroupRow}
+                                            class="rb-group-row__delete">
+                                        </lightning-button-icon>
+                                    </template>
+                                    <template lwc:else>
+                                        <span class="rb-group-row__delete-placeholder"></span>
+                                    </template>
+                                </div>
+                            </template>
+
+                            <!-- Over-allocation warning -->
+                            <template lwc:if={isOverAllocated}>
+                                <p class="rb-error" role="alert">
+                                    <lightning-icon icon-name="utility:error" size="x-small" alternative-text="Error"></lightning-icon>
+                                    {overAllocatedMessage}
+                                </p>
+                            </template>
+
+                            <!-- Add group row button -->
+                            <template lwc:if={canAddGroupRow}>
+                                <lightning-button
+                                    label="Add Another Group"
+                                    icon-name="utility:add"
+                                    variant="neutral"
+                                    onclick={handleAddGroupRow}
+                                    class="rb-add-group-btn">
+                                </lightning-button>
+                            </template>
                         </div>
+
+                        <!-- Multiple rules hint -->
+                        <template lwc:if={willCreateMultiple}>
+                            <div class="rb-multi-hint">
+                                <lightning-icon icon-name="utility:info" size="x-small" alternative-text="Info"></lightning-icon>
+                                <span>{multipleRulesHint}</span>
+                            </div>
+                        </template>
 
                     </div>
 
                     <!-- Right: Live Preview -->
                     <div class="slds-col slds-size_5-of-12">
                         <ui-allocation-preview
-                            location-id={locationId}
+                            location-id={previewLocationId}
                             existing-rules={existingRulesForLocation}
-                            draft-rule={draftRule}>
+                            draft-rules={draftRules}>
                         </ui-allocation-preview>
+
+                        <template lwc:if={willCreateMultiple}>
+                            <div class="rb-preview-note rb-preview-note--multi slds-m-top_small">
+                                <lightning-icon icon-name="utility:layers" size="x-small" alternative-text=""></lightning-icon>
+                                <span>Preview shows one location. The same allocation will apply to all selected locations.</span>
+                            </div>
+                        </template>
 
                         <div class="rb-preview-note slds-m-top_small">
                             <lightning-icon icon-name="utility:info" size="x-small" alternative-text="Info"></lightning-icon>

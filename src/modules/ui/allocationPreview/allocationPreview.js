@@ -1,30 +1,29 @@
-import { LightningElement, api, track } from 'lwc';
+import { LightningElement, api } from 'lwc';
 import { LOCATION_ON_HAND } from 'data/segmentationRules';
 
 /**
- * Allocation Preview — shows how existing rules + a new/edited rule
- * will carve up on-hand inventory at a given location.
+ * Allocation Preview — shows how existing rules + draft rules
+ * carve up on-hand inventory at a given location.
  *
- * Inputs:
- *   locationId      — selected location
- *   existingRules   — all rules already saved for this location
- *   draftRule       — the rule currently being built (not yet saved)
+ * @api locationId      — selected location (first if multiple)
+ * @api existingRules   — saved rules for this location
+ * @api draftRules      — array of rules being built (not yet saved)
  */
 export default class AllocationPreview extends LightningElement {
     @api locationId = '';
     @api existingRules = [];
-    @api draftRule = null;
+    @api draftRules = [];   // replaces single draftRule
 
     get onHand() {
         return LOCATION_ON_HAND[this.locationId] || 0;
     }
 
     get allRules() {
-        const rules = [...(this.existingRules || [])];
-        if (this.draftRule && this.draftRule.groupLabel && this.draftRule.value > 0) {
-            rules.push({ ...this.draftRule, id: 'draft', isDraft: true });
-        }
-        return rules;
+        const existing = [...(this.existingRules || [])];
+        const drafts   = (this.draftRules || [])
+            .filter(d => d && d.groupLabel && d.value > 0)
+            .map(d => ({ ...d, isDraft: true }));
+        return [...existing, ...drafts];
     }
 
     get rows() {
@@ -43,7 +42,7 @@ export default class AllocationPreview extends LightningElement {
             totalAllocated += units;
             const pct = oh > 0 ? Math.min(100, Math.round((units / oh) * 100)) : 0;
             return {
-                id: rule.id,
+                id: rule.id || `r-${rule.groupId}`,
                 groupLabel: rule.groupLabel || '—',
                 displayValue,
                 units,
@@ -54,8 +53,8 @@ export default class AllocationPreview extends LightningElement {
             };
         });
 
-        // Unallocated remainder row
-        const unallocated = Math.max(0, oh - totalAllocated);
+        // Unallocated remainder
+        const unallocated    = Math.max(0, oh - totalAllocated);
         const unallocatedPct = oh > 0 ? Math.round((unallocated / oh) * 100) : 100;
         rows.push({
             id: 'unallocated',
@@ -77,15 +76,7 @@ export default class AllocationPreview extends LightningElement {
             .reduce((sum, r) => sum + r.pct, 0);
     }
 
-    get isOverAllocated() {
-        return this.totalAllocatedPct > 100;
-    }
-
-    get hasLocation() {
-        return !!this.locationId && this.locationId !== '';
-    }
-
-    get formattedOnHand() {
-        return this.onHand.toLocaleString();
-    }
+    get isOverAllocated() { return this.totalAllocatedPct > 100; }
+    get hasLocation()     { return !!this.locationId; }
+    get formattedOnHand() { return this.onHand.toLocaleString(); }
 }

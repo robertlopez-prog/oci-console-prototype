@@ -262,22 +262,28 @@ export default class OmnichannelInventory extends LightningElement {
     }
 
     handleRuleBuilderSave(event) {
-        const rule = event.detail.rule;
-        const idx = this.segRules.findIndex(r => r.id === rule.id);
-        if (idx >= 0) {
-            // Edit existing
-            const updated = [...this.segRules];
-            updated[idx] = rule;
-            this.segRules = updated;
-            this._showToast('success', 'Rule Updated', 'Rule saved with "Pending Rebalance" status — trigger a rebalance to apply.');
-        } else {
-            // New rule
-            this.segRules = [rule, ...this.segRules];
-            this._showToast('success', 'Rule Created', 'Rule saved with "Pending Rebalance" status — trigger a rebalance to apply.');
-        }
+        const { rules } = event.detail; // always an array now
+        let updated = [...this.segRules];
+
+        rules.forEach(rule => {
+            const idx = updated.findIndex(r => r.id === rule.id);
+            if (idx >= 0) {
+                updated[idx] = rule;
+            } else {
+                updated = [rule, ...updated];
+            }
+        });
+
+        this.segRules = updated;
         this.hasPendingChanges = true;
         this.isRuleBuilderOpen = false;
         this.editingRule = null;
+
+        const count = rules.length;
+        const msg = count === 1
+            ? 'Rule saved with "Pending Rebalance" status — trigger a rebalance to apply.'
+            : `${count} rules saved with "Pending Rebalance" status — trigger a rebalance to apply.`;
+        this._showToast('success', count === 1 ? 'Rule Saved' : `${count} Rules Saved`, msg);
     }
 
     handleTriggerRebalance() {
