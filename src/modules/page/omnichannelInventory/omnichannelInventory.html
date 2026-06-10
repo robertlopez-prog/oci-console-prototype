@@ -65,7 +65,7 @@
                 <button
                     class={segmentationTabClass}
                     onclick={handleTabSegmentation}>
-                    Segmentation Rules
+                    Segmentation
                 </button>
                 <button
                     class={overviewTabClass}
@@ -201,7 +201,7 @@
                 </div>
             </template>
 
-            <!-- SEGMENTATION RULES TAB -->
+            <!-- SEGMENTATION TAB -->
             <template lwc:if={isSegmentationRulesActive}>
                 <div class="seg-rules">
 
@@ -209,7 +209,7 @@
                     <template lwc:if={hasPendingChanges}>
                         <div class="seg-rules__pending-banner" role="status">
                             <lightning-icon icon-name="utility:clock" size="x-small" alternative-text="Pending"></lightning-icon>
-                            <span>You have unsaved rule changes. <strong>Trigger a rebalance</strong> to apply them to live inventory.</span>
+                            <span>You have unsaved segment changes. <strong>Trigger a rebalance</strong> to apply them to live inventory.</span>
                             <lightning-button
                                 label={rebalanceLabel}
                                 variant="brand"
@@ -226,12 +226,12 @@
                         <div class="seg-rules__header-left">
                             <span class="seg-rules__count">{segFilteredCountLabel}</span>
                             <template lwc:if={segAtLimit}>
-                                <span class="seg-rules__limit-badge">Rule limit reached (500). Use Import to add more.</span>
+                                <span class="seg-rules__limit-badge">Segment limit reached (500). Use Import to add more.</span>
                             </template>
                         </div>
                         <div class="seg-rules__header-actions">
                             <lightning-button
-                                label="Import Rules"
+                                label="Import Segments"
                                 icon-name="utility:upload"
                                 variant="neutral"
                                 onclick={handleSegImport}>
@@ -243,7 +243,7 @@
                                 onclick={handleSegExport}>
                             </lightning-button>
                             <lightning-button
-                                label="New Rule"
+                                label="New Segment"
                                 icon-name="utility:add"
                                 variant="brand"
                                 disabled={segNewRuleDisabled}
@@ -258,7 +258,7 @@
                         <div class="slds-col slds-size_4-of-12">
                             <lightning-input
                                 type="search"
-                                label="Search rules"
+                                label="Search segments"
                                 placeholder="Search by group, location, SKU..."
                                 value={segSearch}
                                 onchange={handleSegSearch}>
@@ -274,7 +274,7 @@
                         </div>
                         <div class="slds-col slds-size_3-of-12">
                             <lightning-combobox
-                                label="Rule Type"
+                                label="Segment Type"
                                 value={segFilterType}
                                 options={segTypeFilterOptions}
                                 onchange={handleSegFilterType}>
@@ -290,7 +290,7 @@
                                     <th scope="col">Group</th>
                                     <th scope="col">Location(s)</th>
                                     <th scope="col">SKU Scope</th>
-                                    <th scope="col">Rule Type</th>
+                                    <th scope="col">Type</th>
                                     <th scope="col">Value</th>
                                     <th scope="col">Priority</th>
                                     <th scope="col">Status</th>
@@ -325,7 +325,7 @@
                                                 icon-name="utility:edit"
                                                 variant="border-filled"
                                                 size="small"
-                                                alternative-text="Edit rule"
+                                                alternative-text="Edit segment"
                                                 title="Edit"
                                                 data-id={row.id}
                                                 onclick={handleSegEditRule}>
@@ -334,7 +334,7 @@
                                                 icon-name="utility:delete"
                                                 variant="border-filled"
                                                 size="small"
-                                                alternative-text="Delete rule"
+                                                alternative-text="Delete segment"
                                                 title="Delete"
                                                 data-id={row.id}
                                                 onclick={handleSegDeleteRule}
@@ -352,8 +352,8 @@
                         <template lwc:else>
                             <div class="seg-rules__empty">
                                 <lightning-icon icon-name="utility:filter" size="large" alternative-text="" class="seg-rules__empty-icon"></lightning-icon>
-                                <p class="seg-rules__empty-text">No rules match your search.</p>
-                                <p class="seg-rules__empty-sub">Try clearing your filters or create a new rule.</p>
+                                <p class="seg-rules__empty-text">No segments match your search.</p>
+                                <p class="seg-rules__empty-sub">Try clearing your filters or create a new segment.</p>
                             </div>
                         </template>
                     </div>

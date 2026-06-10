@@ -147,19 +147,19 @@ export default class OmnichannelInventory extends LightningElement {
 
     get segTotalRuleCount() { return this.segRules.length; }
     get segAtLimit() { return this.segRules.length >= RULE_LIMIT; }
-    get segRuleCountLabel() { return `${this.segRules.length} rule${this.segRules.length !== 1 ? 's' : ''}`; }
+    get segRuleCountLabel() { return `${this.segRules.length} segment${this.segRules.length !== 1 ? 's' : ''}`; }
     get segFilteredCountLabel() {
         const f = this.filteredSegRules.length;
         const t = this.segRules.length;
-        return f === t ? `${t} rule${t !== 1 ? 's' : ''}` : `${f} of ${t} rules`;
+        return f === t ? `${t} segment${t !== 1 ? 's' : ''}` : `${f} of ${t} segments`;
     }
 
     get rebalanceLabel() { return this.isRebalancing ? 'Rebalancing…' : 'Trigger Rebalance'; }
     get segNewRuleDisabled() { return this.segAtLimit; }
     get segNewRuleTitle() {
         return this.segAtLimit
-            ? 'Rule limit reached. Use Import to add more rules.'
-            : 'Create a new segmentation rule';
+            ? 'Segment limit reached. Use Import to add more.'
+            : 'Create a new segment';
     }
 
     // ── Toast computed ──────────────────────────────────────────────
@@ -258,7 +258,7 @@ export default class OmnichannelInventory extends LightningElement {
         const ruleId = event.currentTarget.dataset.id;
         this.segRules = this.segRules.filter(r => r.id !== ruleId);
         this.hasPendingChanges = true;
-        this._showToast('success', 'Rule Deleted', 'The segmentation rule has been removed. Trigger a rebalance to apply changes.');
+        this._showToast('success', 'Segment Deleted', 'The segment has been removed. Trigger a rebalance to apply changes.');
     }
 
     handleRuleBuilderClose() {
@@ -286,9 +286,9 @@ export default class OmnichannelInventory extends LightningElement {
 
         const count = rules.length;
         const msg = count === 1
-            ? 'Rule saved with "Pending Rebalance" status — trigger a rebalance to apply.'
-            : `${count} rules saved with "Pending Rebalance" status — trigger a rebalance to apply.`;
-        this._showToast('success', count === 1 ? 'Rule Saved' : `${count} Rules Saved`, msg);
+            ? 'Segment saved with "Pending Rebalance" status — trigger a rebalance to apply.'
+            : `${count} segments saved with "Pending Rebalance" status — trigger a rebalance to apply.`;
+        this._showToast('success', count === 1 ? 'Segment Saved' : `${count} Segments Saved`, msg);
     }
 
     handleTriggerRebalance() {
@@ -303,12 +303,12 @@ export default class OmnichannelInventory extends LightningElement {
             this.lastRebalanced = 'Jun 9, 2026 (just now)';
             this.hasPendingChanges = false;
             this.isRebalancing = false;
-            this._showToast('success', 'Rebalance Complete', 'All segmentation rules are now active and applied to live inventory.');
+            this._showToast('success', 'Rebalance Complete', 'All segments are now active and applied to live inventory.');
         }, 2000);
     }
 
     handleSegImport() {
-        this._showToast('info', 'Import Segmentation Rules', 'Import modal — not implemented in this prototype.');
+        this._showToast('info', 'Import Segments', 'Import modal — not implemented in this prototype.');
     }
 
     handleSegExport() {

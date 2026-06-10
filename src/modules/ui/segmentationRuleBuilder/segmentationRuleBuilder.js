@@ -167,7 +167,7 @@ export default class SegmentationRuleBuilder extends LightningElement {
 
     get overAllocatedMessage() {
         return this.isOverAllocated
-            ? `Group percentages total ${this.totalAllocatedPct}% — must be ≤ 100%.`
+            ? `Group allocations total ${this.totalAllocatedPct}% — must be ≤ 100%.`
             : '';
     }
 
@@ -192,15 +192,15 @@ export default class SegmentationRuleBuilder extends LightningElement {
     }
 
     get isEdit()    { return !!this.editRule; }
-    get modalTitle(){ return this.isEdit ? 'Edit Segmentation Rule' : 'Create Segmentation Rule'; }
+    get modalTitle(){ return this.isEdit ? 'Edit Segment' : 'Create Segment'; }
     get saveLabel() {
         const locCount   = this.selectedLocationIds.length;
         const groupCount = this.groupRows.filter(r => r.groupId && r.value).length;
         if (!this.isEdit && (locCount > 1 || groupCount > 1)) {
             const total = locCount * groupCount;
-            return `Save ${total} Rule${total !== 1 ? 's' : ''}`;
+            return `Save ${total} Segment${total !== 1 ? 's' : ''}`;
         }
-        return this.isEdit ? 'Save Changes' : 'Save Rule';
+        return this.isEdit ? 'Save Changes' : 'Save Segment';
     }
 
     get willCreateMultiple() {
@@ -213,7 +213,7 @@ export default class SegmentationRuleBuilder extends LightningElement {
         if (!this.willCreateMultiple) return '';
         const locCount   = this.selectedLocationIds.length;
         const groupCount = this.groupRows.filter(r => r.groupId && r.value).length;
-        return `This will create ${locCount * groupCount} rule${locCount * groupCount !== 1 ? 's' : ''} (${locCount} location${locCount !== 1 ? 's' : ''} × ${groupCount} group${groupCount !== 1 ? 's' : ''}).`;
+        return `This will create ${locCount * groupCount} segment${locCount * groupCount !== 1 ? 's' : ''} (${locCount} location${locCount !== 1 ? 's' : ''} × ${groupCount} group${groupCount !== 1 ? 's' : ''}).`;
     }
 
     // ── Handlers: Location multi-select ──────────────────────────────
