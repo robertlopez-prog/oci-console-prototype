@@ -5,12 +5,14 @@ import { toggleSLDS, activeSLDSVersion, STORAGE_KEY_SLDS_VERSION } from '../../.
 import Home from 'page/home';
 import OmnichannelInventory from 'page/omnichannelInventory';
 import DeletionHistory from 'page/deletionHistory';
+import OmnichannelOverview from 'page/omnichannelOverview';
 import NotFound from 'page/notFound';
 
 const ROUTE_COMPONENTS = {
     'page-home': Home,
     'page-omnichannel-inventory': OmnichannelInventory,
     'page-deletion-history': DeletionHistory,
+    'page-omnichannel-overview': OmnichannelOverview,
 };
 
 /** component name → nav page id */

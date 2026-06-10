@@ -29,9 +29,10 @@ const ORDER_MANAGEMENT_WORKSPACE_ITEMS = [
 ];
 
 const OMNICHANNEL_INVENTORY_WORKSPACE_ITEMS = [
-    { label: 'Home',            iconName: 'standard:home',     iconClass: 'slds-icon-standard-home' },
-    { label: 'Locations',       iconName: 'standard:location', iconClass: 'slds-icon-standard-location' },
-    { label: 'Location Groups', iconName: 'standard:groups',   iconClass: 'slds-icon-standard-groups' },
+    { label: 'Home',                 iconName: 'standard:home',     iconClass: 'slds-icon-standard-home' },
+    { label: 'Locations',            iconName: 'standard:location', iconClass: 'slds-icon-standard-location' },
+    { label: 'Location Groups',      iconName: 'standard:groups',   iconClass: 'slds-icon-standard-groups' },
+    { label: 'Omnichannel Overview', iconName: 'standard:settings', iconClass: 'slds-icon-standard-settings' },
 ];
 
 const DEFAULT_WORKSPACE_OM = 'Order Summaries';
@@ -59,7 +60,8 @@ export default class GlobalNavigation extends LightningElement {
     appSearchQuery = '';
 
     get isOmnichannelInventory() {
-        return this.currentPage === 'omnichannel-inventory';
+        return this.currentPage === 'omnichannel-inventory'
+            || this.currentPage === 'omnichannel-overview';
     }
 
     get workspaceItems() {

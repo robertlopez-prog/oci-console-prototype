@@ -104,4 +104,11 @@ export const routes = [
     component: 'page-deletion-history',
     title: 'Deletion History',
   },
+  {
+    path: '/omnichannel-overview',
+    component: 'page-omnichannel-overview',
+    title: 'Omnichannel Overview',
+    navPage: 'omnichannel-overview',
+    workspace: 'Omnichannel Overview',
+  },
 ];

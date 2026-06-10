@@ -1,0 +1,240 @@
+<template>
+    <div class="ov-page">
+
+        <!-- ── Page Header ── -->
+        <div class="slds-page-header ov-page__header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media slds-media_center">
+                        <div class="slds-media__figure">
+                            <lightning-icon icon-name="standard:settings" size="medium" alternative-text="Omnichannel Overview"></lightning-icon>
+                        </div>
+                        <div class="slds-media__body">
+                            <p class="slds-text-title ov-page__eyebrow">Omnichannel Inventory</p>
+                            <h1 class="slds-page-header__title">Omnichannel Overview</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Main Content ── -->
+        <div class="ov-content">
+
+            <!-- Info Alert: Enterprise Scale Limits -->
+            <div class="ov-alert" role="alert">
+                <lightning-icon icon-name="utility:info" size="x-small" class="ov-alert__icon"></lightning-icon>
+                <div class="ov-alert__body">
+                    <strong>June 2026 Enterprise Scale Limits Active</strong> — Your tenant now supports 7,000 locations, 100 groups, 200M inventory records, and 10,000 membership points.
+                </div>
+            </div>
+
+            <!-- ── Omnichannel Network metrics (3-col) ── -->
+            <p class="ov-section-eyebrow">Omnichannel Network</p>
+            <div class="ov-metrics-grid ov-metrics-grid--3col">
+                <template for:each={networkMetrics} for:item="m">
+                    <div key={m.key} class="ov-card">
+                        <div class="ov-card__header">
+                            <span class={m.colorClass}>
+                                <lightning-icon icon-name="utility:location" size="x-small" alternative-text={m.label}></lightning-icon>
+                            </span>
+                            <span class="ov-card__label">{m.label}</span>
+                        </div>
+                        <div class="ov-card__body">
+                            <div class="ov-card__value">{m.valueFmt}</div>
+                            <div class="ov-card__desc">{m.desc}</div>
+                            <div class="ov-card__limit">Limit: {m.limitFmt}</div>
+                            <div class="ov-progress-bar" title={m.pctTitle}>
+                                <div class="ov-progress-bar__fill" style={m.barStyle}></div>
+                            </div>
+                        </div>
+                        <div class="ov-card__footer">
+                            <span class="ov-card__timestamp">
+                                <lightning-icon icon-name="utility:check" size="xx-small" alternative-text="Updated"></lightning-icon>
+                                Updated today at 2:47 PM
+                            </span>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- ── Inventory Data metrics (2-col with sync) ── -->
+            <p class="ov-section-eyebrow">Inventory Data</p>
+            <div class="ov-metrics-grid ov-metrics-grid--2col">
+
+                <!-- Inventory Records -->
+                <div class="ov-card">
+                    <div class="ov-card__header">
+                        <span class="ov-card__icon--blue">
+                            <lightning-icon icon-name="utility:database" size="x-small" alternative-text="Inventory Records"></lightning-icon>
+                        </span>
+                        <span class="ov-card__label">Inventory Records</span>
+                    </div>
+                    <div class="ov-card__body">
+                        <div class="ov-card__value">{recordsValue}</div>
+                        <div class="ov-card__desc">Total inventory records across all locations</div>
+                        <div class="ov-card__limit">Limit: 200,000,000</div>
+                    </div>
+                    <div class="ov-card__footer">
+                        <span class="ov-card__timestamp">
+                            <lightning-icon icon-name="utility:check" size="xx-small" alternative-text="Updated"></lightning-icon>
+                            {recordsTs}
+                        </span>
+                        <button class={syncRecordsClass} onclick={handleSyncRecords} disabled={syncingRecords}>
+                            <lightning-icon icon-name="utility:refresh" size="xx-small" alternative-text="Sync"></lightning-icon>
+                            {syncRecordsLabel}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Unique SKUs -->
+                <div class="ov-card">
+                    <div class="ov-card__header">
+                        <span class="ov-card__icon--teal">
+                            <lightning-icon icon-name="utility:product" size="x-small" alternative-text="Unique SKUs"></lightning-icon>
+                        </span>
+                        <span class="ov-card__label">Unique SKUs</span>
+                    </div>
+                    <div class="ov-card__body">
+                        <div class="ov-card__value">{skusValue}</div>
+                        <div class="ov-card__desc">Unique product identifiers tracked in this tenant</div>
+                        <div class="ov-card__limit">Limit: 10,000,000</div>
+                    </div>
+                    <div class="ov-card__footer">
+                        <span class="ov-card__timestamp">
+                            <lightning-icon icon-name="utility:check" size="xx-small" alternative-text="Updated"></lightning-icon>
+                            {skusTs}
+                        </span>
+                        <button class={syncSkusClass} onclick={handleSyncSkus} disabled={syncingSkus}>
+                            <lightning-icon icon-name="utility:refresh" size="xx-small" alternative-text="Sync"></lightning-icon>
+                            {syncSkusLabel}
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ── Two-column detail tables ── -->
+            <div class="ov-two-col">
+
+                <!-- Location Groups table -->
+                <div class="ov-data-card">
+                    <div class="ov-data-card__header">
+                        <div class="ov-data-card__title">Location Groups</div>
+                        <div class="ov-data-card__subtitle">47 groups configured · Top 6 by location count</div>
+                    </div>
+                    <table class="ov-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Group Name</th>
+                                <th scope="col" class="ov-num">Locations</th>
+                                <th scope="col" class="ov-num">Membership</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={locationGroups} for:item="g">
+                                <tr key={g.id}>
+                                    <td><a href="javascript:void(0)">{g.name}</a></td>
+                                    <td class="ov-num">{g.locations}</td>
+                                    <td class="ov-num">{g.memberships}</td>
+                                </tr>
+                            </template>
+                            <tr class="ov-table__more-row">
+                                <td colspan="3">+ 41 more groups</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Location Breakdown table + donut visual -->
+                <div class="ov-data-card">
+                    <div class="ov-data-card__header">
+                        <div class="ov-data-card__title">Location Breakdown</div>
+                        <div class="ov-data-card__subtitle">701 locations by type</div>
+                    </div>
+                    <div class="ov-breakdown-layout">
+                        <!-- Donut chart (CSS conic-gradient) -->
+                        <div class="ov-donut-wrap">
+                            <div class="ov-donut" style={donutGradientStyle}>
+                                <div class="ov-donut__hole">
+                                    <span class="ov-donut__total">701</span>
+                                    <span class="ov-donut__total-label">locations</span>
+                                </div>
+                            </div>
+                            <div class="ov-donut__legend">
+                                <template for:each={locationBreakdown} for:item="lt">
+                                    <div key={lt.id} class="ov-legend-item">
+                                        <span class="ov-legend-dot" style={lt.legendDotStyle}></span>
+                                        <span>{lt.type}</span>
+                                        <span class="ov-legend-pct">{lt.pct}%</span>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                        <!-- Breakdown table -->
+                        <table class="ov-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Location Type</th>
+                                    <th scope="col" class="ov-num">Count</th>
+                                    <th scope="col" class="ov-num">% of Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={locationBreakdown} for:item="lt">
+                                    <tr key={lt.id}>
+                                        <td>{lt.type}</td>
+                                        <td class="ov-num">{lt.count}</td>
+                                        <td class="ov-num">{lt.pct}%</td>
+                                    </tr>
+                                </template>
+                                <tr class="ov-table__total-row">
+                                    <td>Total</td>
+                                    <td class="ov-num">701</td>
+                                    <td class="ov-num">100%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ── High Membership Locations ── -->
+            <div class="ov-data-card ov-data-card--full">
+                <div class="ov-data-card__header">
+                    <div class="ov-data-card__title">High Membership Locations</div>
+                    <div class="ov-data-card__subtitle">Locations assigned to 15+ groups · 12 locations total</div>
+                </div>
+                <table class="ov-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Location Name</th>
+                            <th scope="col">Type</th>
+                            <th scope="col" class="ov-num">Group Memberships</th>
+                            <th scope="col" class="ov-num">Records</th>
+                            <th scope="col" class="ov-num">% of Membership Budget</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={highMembershipLocations} for:item="loc">
+                            <tr key={loc.id}>
+                                <td><a href="javascript:void(0)">{loc.name}</a></td>
+                                <td>
+                                    <span class={loc.typeBadgeClass}>{loc.type}</span>
+                                </td>
+                                <td class="ov-num">{loc.memberships}</td>
+                                <td class="ov-num">{loc.recordsFmt}</td>
+                                <td class="ov-num">{loc.budgetPct}</td>
+                            </tr>
+                        </template>
+                        <tr class="ov-table__more-row">
+                            <td colspan="5">+ 6 more high-membership locations</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</template>
