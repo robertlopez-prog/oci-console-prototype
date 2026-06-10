@@ -1,0 +1,170 @@
+/* Backdrop */
+.rb-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 8000;
+}
+
+/* Modal sizing */
+.rb-modal__container {
+    max-width: 860px !important;
+    width: 90vw;
+    z-index: 8001;
+}
+
+.rb-modal__body {
+    padding: var(--slds-g-spacing-5) var(--slds-g-spacing-6);
+    max-height: 72vh;
+    overflow-y: auto;
+}
+
+/* Section blocks */
+.rb-section {
+    margin-bottom: var(--slds-g-spacing-5);
+    padding-bottom: var(--slds-g-spacing-5);
+    border-bottom: 1px solid var(--slds-g-color-border-1, #e0e0e0);
+}
+
+.rb-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.rb-section__header {
+    display: flex;
+    align-items: center;
+    gap: var(--slds-g-spacing-2);
+    margin-bottom: var(--slds-g-spacing-4);
+}
+
+.rb-section__step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background: var(--slds-g-color-brand-base-40, #0176d3);
+    color: #fff;
+    font-size: var(--slds-g-font-scale-base);
+    font-weight: var(--slds-g-font-weight-7);
+    flex-shrink: 0;
+}
+
+.rb-section__title {
+    font-size: var(--slds-g-font-scale-1);
+    font-weight: var(--slds-g-font-weight-6);
+    color: var(--slds-g-color-neutral-base-10, #181818);
+}
+
+/* SKU scope radio group */
+.rb-sku-scope {
+    margin-top: var(--slds-g-spacing-4);
+}
+
+.rb-sku-scope__label {
+    display: block;
+    margin-bottom: var(--slds-g-spacing-2);
+    font-size: var(--slds-g-font-scale-base);
+    font-weight: var(--slds-g-font-weight-6);
+    color: var(--slds-g-color-neutral-base-10, #181818);
+}
+
+.rb-sku-scope__options {
+    display: flex;
+    gap: var(--slds-g-spacing-5);
+    margin-bottom: var(--slds-g-spacing-3);
+}
+
+.rb-radio-option {
+    display: flex;
+    align-items: center;
+    gap: var(--slds-g-spacing-2);
+    cursor: pointer;
+    font-size: var(--slds-g-font-scale-base);
+    color: var(--slds-g-color-neutral-base-10, #181818);
+}
+
+.rb-radio-option__input {
+    accent-color: var(--slds-g-color-brand-base-40, #0176d3);
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+}
+
+.rb-sku-input {
+    margin-top: var(--slds-g-spacing-2);
+}
+
+/* Rule type toggle buttons */
+.rb-rule-type {
+    margin-bottom: var(--slds-g-spacing-4);
+}
+
+.rb-rule-type__options {
+    display: inline-flex;
+    border: 1px solid var(--slds-g-color-border-1, #dddbda);
+    border-radius: var(--slds-g-radius-border-2, 4px);
+    overflow: hidden;
+    margin-top: var(--slds-g-spacing-2);
+}
+
+.rb-type-btn {
+    padding: var(--slds-g-spacing-2) var(--slds-g-spacing-4);
+    background: var(--slds-g-color-neutral-base-100, #fff);
+    border: none;
+    border-right: 1px solid var(--slds-g-color-border-1, #dddbda);
+    font-size: var(--slds-g-font-scale-base);
+    color: var(--slds-g-color-neutral-base-30, #444);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.rb-type-btn:last-child {
+    border-right: none;
+}
+
+.rb-type-btn--active {
+    background: var(--slds-g-color-brand-base-40, #0176d3);
+    color: #fff;
+    font-weight: var(--slds-g-font-weight-6);
+}
+
+.rb-type-btn:hover:not(.rb-type-btn--active) {
+    background: var(--slds-g-color-neutral-base-95, #f3f3f3);
+}
+
+/* Priority */
+.rb-priority {
+    margin-top: var(--slds-g-spacing-4);
+}
+
+.rb-priority__hint {
+    font-size: var(--slds-g-font-scale-base);
+    color: var(--slds-g-color-neutral-base-40, #706e6b);
+    margin-top: var(--slds-g-spacing-2);
+}
+
+/* Error */
+.rb-error {
+    display: flex;
+    align-items: center;
+    gap: var(--slds-g-spacing-2);
+    margin-top: var(--slds-g-spacing-2);
+    font-size: var(--slds-g-font-scale-base);
+    color: var(--slds-g-color-error-base-40, #ba0517);
+}
+
+/* Preview note */
+.rb-preview-note {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--slds-g-spacing-2);
+    font-size: var(--slds-g-font-scale-base);
+    color: var(--slds-g-color-neutral-base-40, #706e6b);
+    background: var(--slds-g-color-neutral-base-98, #f9f9f9);
+    border: 1px solid var(--slds-g-color-border-1, #e0e0e0);
+    border-radius: var(--slds-g-radius-border-2, 4px);
+    padding: var(--slds-g-spacing-3);
+}

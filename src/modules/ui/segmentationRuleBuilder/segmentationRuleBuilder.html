@@ -1,0 +1,179 @@
+<template>
+    <!-- Modal backdrop -->
+    <div class="rb-backdrop" onclick={handleClose}></div>
+
+    <!-- Modal -->
+    <section class="rb-modal slds-modal slds-fade-in-open" role="dialog" aria-modal="true" aria-labelledby="rb-modal-heading">
+        <div class="slds-modal__container rb-modal__container">
+
+            <!-- Header -->
+            <header class="slds-modal__header">
+                <lightning-button-icon
+                    icon-name="utility:close"
+                    alternative-text="Close"
+                    title="Close"
+                    variant="bare-inverse"
+                    class="slds-modal__close"
+                    onclick={handleClose}>
+                </lightning-button-icon>
+                <h1 id="rb-modal-heading" class="slds-modal__title">{modalTitle}</h1>
+            </header>
+
+            <!-- Body: two-column layout -->
+            <div class="slds-modal__content rb-modal__body">
+                <div class="slds-grid slds-gutters">
+
+                    <!-- Left: Form -->
+                    <div class="slds-col slds-size_7-of-12 rb-form">
+
+                        <!-- STEP 1: Scope -->
+                        <div class="rb-section">
+                            <div class="rb-section__header">
+                                <span class="rb-section__step">1</span>
+                                <span class="rb-section__title">Scope — Where does this rule apply?</span>
+                            </div>
+
+                            <lightning-combobox
+                                label="Location(s)"
+                                placeholder="Select location(s)..."
+                                value={locationId}
+                                options={locationOptions}
+                                onchange={handleLocationChange}
+                                required>
+                            </lightning-combobox>
+
+                            <div class="rb-sku-scope">
+                                <legend class="slds-form-element__legend slds-form-element__label rb-sku-scope__label">SKU Scope</legend>
+                                <div class="rb-sku-scope__options">
+                                    <label class="rb-radio-option">
+                                        <input
+                                            type="radio"
+                                            name="skuScope"
+                                            value="all"
+                                            checked={isSpecificSku}
+                                            onchange={handleSkuScopeAll}
+                                            class="rb-radio-option__input" />
+                                        <span class="rb-radio-option__label">All SKUs</span>
+                                    </label>
+                                    <label class="rb-radio-option">
+                                        <input
+                                            type="radio"
+                                            name="skuScope"
+                                            value="specific"
+                                            onchange={handleSkuScopeSpecific}
+                                            class="rb-radio-option__input" />
+                                        <span class="rb-radio-option__label">Specific SKU(s)</span>
+                                    </label>
+                                </div>
+                                <template lwc:if={isSpecificSku}>
+                                    <lightning-input
+                                        type="text"
+                                        label="SKU ID(s)"
+                                        placeholder="Enter SKU..."
+                                        value={specificSku}
+                                        onchange={handleSkuInputChange}
+                                        class="rb-sku-input">
+                                    </lightning-input>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- STEP 2: Allocation -->
+                        <div class="rb-section">
+                            <div class="rb-section__header">
+                                <span class="rb-section__step">2</span>
+                                <span class="rb-section__title">Allocation — How much can the group access?</span>
+                            </div>
+
+                            <div class="rb-rule-type">
+                                <legend class="slds-form-element__legend slds-form-element__label rb-sku-scope__label">Rule Type</legend>
+                                <div class="rb-rule-type__options">
+                                    <button
+                                        class={percentageTabClass}
+                                        onclick={handleRuleTypePercentage}
+                                        type="button">
+                                        Percentage (%)
+                                    </button>
+                                    <button
+                                        class={maxQtyTabClass}
+                                        onclick={handleRuleTypeMaxQty}
+                                        type="button">
+                                        Max Fixed Quantity
+                                    </button>
+                                </div>
+                            </div>
+
+                            <lightning-input
+                                type="number"
+                                label={valueLabel}
+                                placeholder={valuePlaceholder}
+                                value={ruleValue}
+                                onchange={handleValueChange}
+                                min="1"
+                                message-when-range-underflow={validationMessage}>
+                            </lightning-input>
+
+                            <template lwc:if={hasValidationError}>
+                                <p class="rb-error" role="alert">
+                                    <lightning-icon icon-name="utility:error" size="x-small" alternative-text="Error"></lightning-icon>
+                                    {validationMessage}
+                                </p>
+                            </template>
+                        </div>
+
+                        <!-- STEP 3: Group + Priority -->
+                        <div class="rb-section">
+                            <div class="rb-section__header">
+                                <span class="rb-section__step">3</span>
+                                <span class="rb-section__title">Target Group &amp; Priority</span>
+                            </div>
+
+                            <lightning-combobox
+                                label="Assign to Group"
+                                placeholder="Select a group..."
+                                value={groupId}
+                                options={groupOptions}
+                                onchange={handleGroupChange}
+                                required>
+                            </lightning-combobox>
+
+                            <div class="rb-priority">
+                                <lightning-combobox
+                                    label="Priority"
+                                    placeholder="1"
+                                    value={priorityString}
+                                    options={priorityOptions}
+                                    onchange={handlePriorityChange}>
+                                </lightning-combobox>
+                                <p class="rb-priority__hint">Priority controls the order stacked rules are applied for the same target (1 = first). Up to 10 rules can stack.</p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Right: Live Preview -->
+                    <div class="slds-col slds-size_5-of-12">
+                        <ui-allocation-preview
+                            location-id={locationId}
+                            existing-rules={existingRulesForLocation}
+                            draft-rule={draftRule}>
+                        </ui-allocation-preview>
+
+                        <div class="rb-preview-note slds-m-top_small">
+                            <lightning-icon icon-name="utility:info" size="x-small" alternative-text="Info"></lightning-icon>
+                            <span>Group caps limit how much of a location's on-hand a group can consume. Locations (including BOPIS) always retain 100% access to their own inventory.</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="slds-modal__footer">
+                <lightning-button label="Cancel" variant="neutral" onclick={handleClose}></lightning-button>
+                <lightning-button label={saveLabel} variant="brand" onclick={handleSave} disabled={isSaveDisabled}></lightning-button>
+            </footer>
+
+        </div>
+    </section>
+</template>

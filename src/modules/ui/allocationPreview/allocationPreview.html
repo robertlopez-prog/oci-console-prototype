@@ -1,0 +1,48 @@
+<template>
+    <div class="alloc-preview">
+        <div class="alloc-preview__header">
+            <span class="alloc-preview__title">Live Allocation Preview</span>
+            <span class="alloc-preview__note">Changes apply on next rebalance</span>
+        </div>
+
+        <template lwc:if={hasLocation}>
+            <div class="alloc-preview__onhand">
+                <lightning-icon icon-name="utility:inventory" size="x-small" alternative-text="" class="alloc-preview__onhand-icon"></lightning-icon>
+                <span>On-Hand: <strong>{formattedOnHand}</strong> units</span>
+            </div>
+
+            <template lwc:if={isOverAllocated}>
+                <div class="alloc-preview__warning" role="alert">
+                    <lightning-icon icon-name="utility:warning" size="x-small" alternative-text="Warning"></lightning-icon>
+                    <span>Total group caps exceed 100% of on-hand. Reduce one or more rules.</span>
+                </div>
+            </template>
+
+            <div class="alloc-preview__rows">
+                <template for:each={rows} for:item="row">
+                    <div key={row.id} class={row.rowClass}>
+                        <div class="alloc-preview__row-meta">
+                            <span class="alloc-preview__group-name">
+                                <template lwc:if={row.isDraft}>
+                                    <lightning-badge label="New" class="alloc-preview__draft-badge"></lightning-badge>
+                                </template>
+                                {row.groupLabel}
+                            </span>
+                            <span class="alloc-preview__row-values">
+                                <span class="alloc-preview__display-value">{row.displayValue}</span>
+                                <span class="alloc-preview__units">{row.units} units</span>
+                            </span>
+                        </div>
+                        <div class="alloc-preview__bar-track">
+                            <div class="alloc-preview__bar-fill" style={row.barStyle}></div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </template>
+
+        <template lwc:else>
+            <p class="alloc-preview__empty">Select a location to see allocation preview.</p>
+        </template>
+    </div>
+</template>
