@@ -203,7 +203,7 @@
             <template lwc:if={isSegmentationRulesActive}>
                 <div class="seg-rules">
 
-                    <!-- Toolbar: Pending banner + rebalance + actions -->
+                    <!-- Toolbar: Pending banner -->
                     <template lwc:if={hasPendingChanges}>
                         <div class="seg-rules__pending-banner" role="status">
                             <lightning-icon icon-name="utility:clock" size="x-small" alternative-text="Pending"></lightning-icon>
@@ -212,7 +212,7 @@
                                 label={rebalanceLabel}
                                 variant="brand"
                                 size="small"
-                                onclick={handleTriggerRebalance}
+                                onclick={handleOpenRebalanceModal}
                                 disabled={isRebalancing}
                                 class="seg-rules__rebalance-btn">
                             </lightning-button>
@@ -239,6 +239,14 @@
                                 icon-name="utility:download"
                                 variant="neutral"
                                 onclick={handleSegExport}>
+                            </lightning-button>
+                            <lightning-button
+                                label="Rebalance"
+                                icon-name="utility:refresh"
+                                variant="neutral"
+                                title="Reset segment counts for all or targeted locations/SKUs"
+                                onclick={handleOpenRebalanceModal}
+                                disabled={isRebalancing}>
                             </lightning-button>
                             <lightning-button
                                 label="New Segment"
@@ -328,6 +336,43 @@
                                                 data-id={row.id}
                                                 onclick={handleSegEditRule}>
                                             </lightning-button-icon>
+                                            <!-- Row-level rebalance with micro-confirm -->
+                                            <div class="seg-rules__row-rebalance-wrap">
+                                                <lightning-button-icon
+                                                    icon-name="utility:refresh"
+                                                    variant="border-filled"
+                                                    size="small"
+                                                    alternative-text="Rebalance this segment"
+                                                    title="Rebalance"
+                                                    data-id={row.id}
+                                                    data-group={row.groupLabel}
+                                                    data-location={row.locationLabel}
+                                                    data-sku={row.skuLabel}
+                                                    onclick={handleRowRebalanceClick}>
+                                                </lightning-button-icon>
+                                                <!-- Micro-confirm popover -->
+                                                <template lwc:if={row.showConfirm}>
+                                                    <div class="seg-rules__row-confirm" role="dialog">
+                                                        <p class="seg-rules__row-confirm-text">Rebalance <strong>{row.groupLabel}</strong> / {row.locationLabel} / {row.skuLabel}?</p>
+                                                        <div class="seg-rules__row-confirm-actions">
+                                                            <lightning-button
+                                                                label="Confirm"
+                                                                variant="brand"
+                                                                size="small"
+                                                                data-id={row.id}
+                                                                onclick={handleRowRebalanceConfirm}>
+                                                            </lightning-button>
+                                                            <lightning-button
+                                                                label="Cancel"
+                                                                variant="neutral"
+                                                                size="small"
+                                                                data-id={row.id}
+                                                                onclick={handleRowRebalanceCancel}>
+                                                            </lightning-button>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
                                             <lightning-button-icon
                                                 icon-name="utility:delete"
                                                 variant="border-filled"
@@ -399,6 +444,123 @@
 
         </div>
     </div>
+
+    <!-- ── Rebalance Modal ── -->
+    <template lwc:if={isRebalanceModalOpen}>
+        <div class="rb-backdrop" onclick={handleRebalanceModalClose}></div>
+        <section class="rb-modal slds-modal slds-fade-in-open" role="dialog" aria-modal="true" aria-labelledby="reb-modal-heading">
+            <div class="slds-modal__container reb-modal__container">
+                <header class="slds-modal__header">
+                    <lightning-button-icon
+                        icon-name="utility:close"
+                        alternative-text="Close"
+                        title="Close"
+                        variant="bare-inverse"
+                        class="slds-modal__close"
+                        onclick={handleRebalanceModalClose}>
+                    </lightning-button-icon>
+                    <h1 id="reb-modal-heading" class="slds-modal__title">Trigger Rebalance</h1>
+                </header>
+
+                <div class="slds-modal__content reb-modal__body">
+
+                    <!-- Scope selector -->
+                    <p class="reb-section-label">Rebalance Scope</p>
+
+                    <div class="reb-scope-options">
+                        <!-- All Segments -->
+                        <label class="reb-scope-card">
+                            <input type="radio" name="rebScope" value="all" checked={rebScopeIsAll} onchange={handleRebScopeChange} class="reb-scope-card__radio" />
+                            <div class="reb-scope-card__body">
+                                <span class="reb-scope-card__title">All Segments</span>
+                                <span class="reb-scope-card__desc">Recalculates availability for all active segments across all locations. Use after a full import or broad stock event.</span>
+                            </div>
+                        </label>
+
+                        <!-- Location / SKU -->
+                        <label class="reb-scope-card">
+                            <input type="radio" name="rebScope" value="location" checked={rebScopeIsLocation} onchange={handleRebScopeChange} class="reb-scope-card__radio" />
+                            <div class="reb-scope-card__body">
+                                <span class="reb-scope-card__title">Specific Location / SKU</span>
+                                <span class="reb-scope-card__desc">Target one location and optionally a single SKU. Use after localized damage, shrinkage, or a count correction.</span>
+                            </div>
+                        </label>
+
+                        <!-- Group -->
+                        <label class="reb-scope-card">
+                            <input type="radio" name="rebScope" value="group" checked={rebScopeIsGroup} onchange={handleRebScopeChange} class="reb-scope-card__radio" />
+                            <div class="reb-scope-card__body">
+                                <span class="reb-scope-card__title">Specific Group</span>
+                                <span class="reb-scope-card__desc">Rebalance all rules for one channel group. Use when a single channel's allocation has drifted or needs correction.</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Location/SKU sub-fields -->
+                    <template lwc:if={rebScopeIsLocation}>
+                        <div class="reb-subfields">
+                            <lightning-combobox
+                                label="Location"
+                                placeholder="Select location..."
+                                value={rebLocation}
+                                options={rebLocationOptions}
+                                onchange={handleRebLocationChange}
+                                required>
+                            </lightning-combobox>
+                            <div class="reb-sku-scope">
+                                <legend class="reb-sku-scope__label">SKU</legend>
+                                <div class="reb-sku-scope__options">
+                                    <label class="rb-radio-option">
+                                        <input type="radio" name="rebSkuScope" value="all" onchange={handleRebSkuScopeChange} class="rb-radio-option__input" checked={rebSkuScopeIsAll} />
+                                        <span class="rb-radio-option__label">All SKUs at this location</span>
+                                    </label>
+                                    <label class="rb-radio-option">
+                                        <input type="radio" name="rebSkuScope" value="specific" onchange={handleRebSkuScopeChange} class="rb-radio-option__input" checked={rebSkuScopeIsSpecific} />
+                                        <span class="rb-radio-option__label">Specific SKU</span>
+                                    </label>
+                                </div>
+                                <template lwc:if={rebSkuScopeIsSpecific}>
+                                    <lightning-input
+                                        type="text"
+                                        label="SKU"
+                                        placeholder="e.g. RED-SHIRT-XL"
+                                        value={rebSku}
+                                        onchange={handleRebSkuChange}>
+                                    </lightning-input>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Group sub-field -->
+                    <template lwc:if={rebScopeIsGroup}>
+                        <div class="reb-subfields">
+                            <lightning-combobox
+                                label="Group"
+                                placeholder="Select group..."
+                                value={rebGroup}
+                                options={rebGroupOptions}
+                                onchange={handleRebGroupChange}
+                                required>
+                            </lightning-combobox>
+                        </div>
+                    </template>
+
+                    <!-- Info note -->
+                    <div class="reb-info-note">
+                        <lightning-icon icon-name="utility:info" size="x-small" alternative-text="Info"></lightning-icon>
+                        <span>A rebalance resets consumption counts and recalculates available inventory from current on-hand and open reservations. Segment setting is not changed.</span>
+                    </div>
+
+                </div>
+
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" variant="neutral" onclick={handleRebalanceModalClose}></lightning-button>
+                    <lightning-button label={rebalanceModalSubmitLabel} variant="brand" onclick={handleRebalanceModalSubmit} disabled={isRebalancing}></lightning-button>
+                </footer>
+            </div>
+        </section>
+    </template>
 
     <!-- ── Rule Builder Modal ── -->
     <template lwc:if={isRuleBuilderOpen}>

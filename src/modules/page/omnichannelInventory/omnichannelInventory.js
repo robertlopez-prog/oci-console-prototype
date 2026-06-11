@@ -66,6 +66,17 @@ export default class OmnichannelInventory extends LightningElement {
     @track lastRebalanced = 'Jun 9, 2026, 2:34 PM';
     @track hasPendingChanges = true; // start with pending to demo the state
 
+    // Rebalance modal state
+    @track isRebalanceModalOpen = false;
+    @track rebScope = 'all';       // 'all' | 'location' | 'group'
+    @track rebLocation = '';
+    @track rebSkuScope = 'all';    // 'all' | 'specific'
+    @track rebSku = '';
+    @track rebGroup = '';
+
+    // Row-level micro-confirm: id of the row showing confirm popover, or null
+    @track rowConfirmId = null;
+
     // Toast state
     @track showToast = false;
     @track toastVariant = 'success';
@@ -138,6 +149,7 @@ export default class OmnichannelInventory extends LightningElement {
             statusBadgeClass: r.status === 'pending'
                 ? 'seg-status-badge seg-status-badge--pending'
                 : 'seg-status-badge seg-status-badge--active',
+            showConfirm: this.rowConfirmId === r.id,
         }));
     }
 
@@ -155,6 +167,24 @@ export default class OmnichannelInventory extends LightningElement {
     }
 
     get rebalanceLabel() { return this.isRebalancing ? 'Rebalancing…' : 'Trigger Rebalance'; }
+
+    // Rebalance modal computed
+    get rebScopeIsAll()      { return this.rebScope === 'all'; }
+    get rebScopeIsLocation() { return this.rebScope === 'location'; }
+    get rebScopeIsGroup()    { return this.rebScope === 'group'; }
+    get rebSkuScopeIsAll()      { return this.rebSkuScope === 'all'; }
+    get rebSkuScopeIsSpecific() { return this.rebSkuScope === 'specific'; }
+
+    get rebLocationOptions() {
+        return SEG_LOCATIONS.filter(l => l.value !== 'all');
+    }
+    get rebGroupOptions() {
+        return SEG_LOCATION_GROUPS;
+    }
+    get rebalanceModalSubmitLabel() {
+        return this.isRebalancing ? 'Rebalancing…' : 'Trigger Rebalance';
+    }
+
     get segNewRuleDisabled() { return this.segAtLimit; }
     get segNewRuleTitle() {
         return this.segAtLimit
@@ -291,19 +321,112 @@ export default class OmnichannelInventory extends LightningElement {
         this._showToast('success', count === 1 ? 'Segment Saved' : `${count} Segments Saved`, msg);
     }
 
-    handleTriggerRebalance() {
+    // ── Rebalance Modal handlers ────────────────────────────────────
+    handleOpenRebalanceModal() {
+        this.rebScope = 'all';
+        this.rebLocation = '';
+        this.rebSkuScope = 'all';
+        this.rebSku = '';
+        this.rebGroup = '';
+        this.isRebalanceModalOpen = true;
+    }
+
+    handleRebalanceModalClose() {
+        this.isRebalanceModalOpen = false;
+    }
+
+    handleRebScopeChange(event) {
+        this.rebScope = event.target.value;
+        // Reset sub-fields when scope changes
+        this.rebLocation = '';
+        this.rebSkuScope = 'all';
+        this.rebSku = '';
+        this.rebGroup = '';
+    }
+
+    handleRebLocationChange(event) { this.rebLocation = event.detail.value; }
+    handleRebSkuScopeChange(event) { this.rebSkuScope = event.target.value; }
+    handleRebSkuChange(event)      { this.rebSku = event.detail.value; }
+    handleRebGroupChange(event)    { this.rebGroup = event.detail.value; }
+
+    handleRebalanceModalSubmit() {
+        this.isRebalanceModalOpen = false;
+        this._executeRebalance(this.rebScope, {
+            location: this.rebLocation,
+            skuScope: this.rebSkuScope,
+            sku: this.rebSku,
+            group: this.rebGroup,
+        });
+    }
+
+    // ── Row-level micro-confirm handlers ────────────────────────────
+    handleRowRebalanceClick(event) {
+        const id = event.currentTarget.dataset.id;
+        // Toggle: clicking again cancels
+        this.rowConfirmId = this.rowConfirmId === id ? null : id;
+    }
+
+    handleRowRebalanceConfirm(event) {
+        const id = event.currentTarget.dataset.id;
+        const rule = this.segRules.find(r => r.id === id);
+        this.rowConfirmId = null;
+        if (rule) {
+            this._executeRebalance('row', { ruleId: id, groupLabel: rule.groupLabel, locationLabel: rule.locationLabel, skuLabel: rule.skuLabel });
+        }
+    }
+
+    handleRowRebalanceCancel(event) {
+        this.rowConfirmId = null;
+    }
+
+    // ── Core rebalance execution ────────────────────────────────────
+    _executeRebalance(scope, opts) {
         this.isRebalancing = true;
+        const ts = 'Jun 11, 2026 (just now)';
+
         setTimeout(() => {
-            // Simulate rebalance completing
-            this.segRules = this.segRules.map(r => ({
-                ...r,
-                status: 'active',
-                lastRebalanced: 'Jun 9, 2026 (just now)',
-            }));
-            this.lastRebalanced = 'Jun 9, 2026 (just now)';
-            this.hasPendingChanges = false;
+            if (scope === 'all') {
+                this.segRules = this.segRules.map(r => ({
+                    ...r, status: 'active', lastRebalanced: ts,
+                }));
+                this.lastRebalanced = ts;
+                this.hasPendingChanges = false;
+                this._showToast('success', 'Rebalance Complete', 'All segments recalculated from current on-hand and open reservations.');
+
+            } else if (scope === 'location') {
+                const locLabel = this.rebLocationOptions.find(l => l.value === opts.location)?.label || opts.location;
+                const skuDesc  = opts.skuScope === 'specific' && opts.sku ? `SKU: ${opts.sku}` : 'all SKUs';
+                this.segRules = this.segRules.map(r => {
+                    const matchLoc = opts.location === 'all' || r.locationId === opts.location;
+                    const matchSku = opts.skuScope === 'all' || r.skuLabel.toLowerCase().includes((opts.sku || '').toLowerCase());
+                    return (matchLoc && matchSku)
+                        ? { ...r, status: 'active', lastRebalanced: `${ts} (manual)` }
+                        : r;
+                });
+                this.lastRebalanced = ts;
+                this._showToast('success', 'Rebalance Complete', `${locLabel} / ${skuDesc} — counts reset from current on-hand.`);
+
+            } else if (scope === 'group') {
+                const groupLabel = SEG_LOCATION_GROUPS.find(g => g.value === opts.group)?.label || opts.group;
+                this.segRules = this.segRules.map(r =>
+                    r.groupId === opts.group
+                        ? { ...r, status: 'active', lastRebalanced: `${ts} (manual)` }
+                        : r
+                );
+                this.lastRebalanced = ts;
+                this._showToast('success', 'Rebalance Complete', `${groupLabel} — counts reset from current on-hand.`);
+
+            } else if (scope === 'row') {
+                this.segRules = this.segRules.map(r =>
+                    r.id === opts.ruleId
+                        ? { ...r, status: 'active', lastRebalanced: `${ts} (manual)` }
+                        : r
+                );
+                this.lastRebalanced = ts;
+                this._showToast('success', 'Rebalance Complete', `${opts.groupLabel} / ${opts.locationLabel} / ${opts.skuLabel} — counts reset.`);
+            }
+
             this.isRebalancing = false;
-            this._showToast('success', 'Rebalance Complete', 'All segments are now active and applied to live inventory.');
         }, 2000);
     }
 
